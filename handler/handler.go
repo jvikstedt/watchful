@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -29,17 +30,33 @@ func New(logger *log.Logger, storage storage.Service) http.Handler {
 	h := handler{logger, storage}
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/ping", h.ping)
+		r.Route("/projects", func(r chi.Router) {
+			r.Get("/", h.projectAll)
+		})
 	})
 	return r
 }
 
 type handler struct {
-	logger  *log.Logger
+	log     *log.Logger
 	storage storage.Service
 }
 
-func (h handler) ping(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("pong"))
+func (h handler) projectAll(w http.ResponseWriter, r *http.Request) {
+
+	projects, err := h.storage.ProjectAll()
+	if h.checkErr(err, w, http.StatusInternalServerError) {
+		return
+	}
+
+	json.NewEncoder(w).Encode(projects)
+}
+
+func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {
+	if err != nil {
+		h.log.Println(err)
+		w.WriteHeader(statusCode)
+		return true
+	}
+	return false
 }

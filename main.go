@@ -8,6 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/jvikstedt/watchful/handler"
+	"github.com/jvikstedt/watchful/storage/sqlite"
 )
 
 func main() {
@@ -18,7 +19,13 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	http.Handle("/", handler.New(logger, nil))
+	storage, err := sqlite.New("./dev.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer storage.Close()
+
+	http.Handle("/", handler.New(logger, storage))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {
