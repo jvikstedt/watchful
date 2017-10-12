@@ -14,7 +14,7 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8000"
 	}
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
