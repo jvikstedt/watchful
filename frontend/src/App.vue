@@ -1,23 +1,38 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <div class="ui fixed inverted menu">
+      <div class="ui container">
+        <router-link to="/" class="header item">
+          Watchful
+        </router-link>
+        <router-link to="/" class="item">Home</router-link>
+      </div>
+    </div>
+
+    <div class="ui main text container">
+      <Flash />
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
+import Flash from '@/components/Flash'
+
 export default {
-  name: 'app'
+  name: 'app',
+
+  components: {
+    Flash
+  }
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  body {
+    background-color: #FFFFFF;
+  }
+  .main.container {
+    margin-top: 4em;
+  }
 </style>
