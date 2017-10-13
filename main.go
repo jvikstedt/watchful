@@ -7,7 +7,10 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/jvikstedt/watchful/builtin/checker"
+	"github.com/jvikstedt/watchful/builtin/executor"
 	"github.com/jvikstedt/watchful/handler"
+	"github.com/jvikstedt/watchful/manager"
 	"github.com/jvikstedt/watchful/storage/sqlite"
 )
 
@@ -25,7 +28,13 @@ func main() {
 	}
 	defer storage.Close()
 
-	http.Handle("/", handler.New(logger, storage))
+	manager := manager.NewService(logger, storage)
+	manager.RegisterChecker(&checker.Equal{})
+	manager.RegisterExecutor(&executor.HTTP{})
+
+	go manager.Run()
+
+	http.Handle("/", handler.New(logger, storage, manager))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {
@@ -35,7 +44,7 @@ func main() {
 		<-sigquit
 
 		if err := server.Shutdown(context.Background()); err != nil {
-			logger.Printf("Unable to shut down server: %v", err)
+			logger.Printf("Unable to shutdown server: %v", err)
 		}
 	}()
 
@@ -43,5 +52,9 @@ func main() {
 		logger.Printf("%v", err)
 	} else {
 		logger.Println("Server closed!")
+	}
+
+	if err := manager.Shutdown(); err != nil {
+		logger.Printf("Unable to shutdown manager: %v", err)
 	}
 }
