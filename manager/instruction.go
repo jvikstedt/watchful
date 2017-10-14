@@ -9,12 +9,12 @@ const (
 )
 
 type Param struct {
-	ParamType
-	Name     string
-	Required bool
+	Type     ParamType `json:"type"`
+	Name     string    `json:"name"`
+	Required bool      `json:"required"`
 }
 
 type Instruction struct {
-	Takes   []Param
-	Returns []Param
+	Takes   []Param `json:"takes"`
+	Returns []Param `json:"returns"`
 }

@@ -16,10 +16,10 @@ func (h HTTP) Name() string {
 func (h HTTP) Instructions() manager.Instruction {
 	return manager.Instruction{
 		Takes: []manager.Param{
-			manager.Param{ParamType: manager.ParamString, Name: "url", Required: true},
+			manager.Param{Type: manager.ParamString, Name: "url", Required: true},
 		},
 		Returns: []manager.Param{
-			manager.Param{ParamType: manager.ParamInt, Name: "statusCode"},
+			manager.Param{Type: manager.ParamInt, Name: "statusCode"},
 		},
 	}
 }

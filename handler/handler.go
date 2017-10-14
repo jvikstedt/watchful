@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -34,6 +33,14 @@ func New(logger *log.Logger, storage storage.Service, manager *manager.Service) 
 		r.Route("/projects", func(r chi.Router) {
 			r.Get("/", h.projectAll)
 		})
+
+		r.Route("/jobs", func(r chi.Router) {
+			r.Post("/", h.jobCreate)
+		})
+
+		r.Route("/executors", func(r chi.Router) {
+			r.Get("/", h.executorAll)
+		})
 	})
 	return r
 }
@@ -42,16 +49,6 @@ type handler struct {
 	log     *log.Logger
 	storage storage.Service
 	manager *manager.Service
-}
-
-func (h handler) projectAll(w http.ResponseWriter, r *http.Request) {
-
-	projects, err := h.storage.ProjectAll()
-	if h.checkErr(err, w, http.StatusInternalServerError) {
-		return
-	}
-
-	json.NewEncoder(w).Encode(projects)
 }
 
 func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {

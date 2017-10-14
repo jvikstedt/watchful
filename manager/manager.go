@@ -43,6 +43,10 @@ func (s *Service) RegisterExecutor(e Executor) {
 	s.executors[e.Name()] = e
 }
 
+func (s *Service) Executors() map[string]Executor {
+	return s.executors
+}
+
 func (s *Service) RegisterChecker(c Checker) {
 	s.checkers[c.Name()] = c
 }
