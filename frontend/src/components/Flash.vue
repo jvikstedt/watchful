@@ -1,34 +1,28 @@
 <template>
   <transition name="fade">
-    <div v-if="current" class="flash-message">
-      <div :class="'ui message ' + current.status">
-        <i class="close icon" @click="removeCurrent"></i>
+    <div v-if="flash" class="flash-message">
+      <div :class="'ui message ' + flash.status">
+        <i class="close icon" @click="removeFlash"></i>
         <div class="header">
-          {{ current.header }}
+          {{ flash.header }}
         </div>
-        <p v-if="current.body">{{ current.body }}</p>
+        <p v-if="flash.body">{{ flash.body }}</p>
       </div>
     </div>
   </transition>
 </template>
 
-<script type="text/javascript">
-import { EventBus } from '@/EventBus'
-
+<script>
 export default {
-  data: () => ({
-    current: false
-  }),
-
-  created: function () {
-    EventBus.$on('flash', event => {
-      this.current = event
-    })
+  computed: {
+    flash () {
+      return this.$store.state.flash
+    }
   },
 
   methods: {
-    removeCurrent: function (event) {
-      this.current = false
+    removeFlash (event) {
+      this.$store.commit('clearFlash')
     }
   }
 }

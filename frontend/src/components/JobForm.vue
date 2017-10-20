@@ -1,24 +1,25 @@
 <template>
   <div>
-    <select v-model="job.executorID">
+    <select v-model="selectedExecutor">
       <option v-for="(executor, index) in executors">{{ executor.name }}</option>
     </select>
-    <div v-if="currentExecutor">
-      <div v-for="(take, index) in currentExecutor.takes">
-        <label :for="take.name">{{ take.name }}</label>
-        <input :id="take.name" v-model="job.takes[take.name]" />
-      </div>
-    </div>
-    <button class="ui button" @click="onSubmit(job)">Submit</button>
+    <button class="ui button" @click="addExecutor">Add executor</button>
+
+    <select v-model="selectedChecker">
+      <option v-for="(checker, index) in checkers">{{ checker.name }}</option>
+    </select>
+    <button class="ui button" @click="addChecker">Add checker</button>
   </div>
 </template>
 
 <script>
-import _ from 'lodash'
-
 export default {
   props: {
     executors: {
+      type: Array,
+      required: true
+    },
+    checkers: {
       type: Array,
       required: true
     },
@@ -27,29 +28,13 @@ export default {
       required: true
     }
   },
-  data: () => ({
-    job: {
-      executorID: '',
-      takes: {}
-    }
-  }),
 
   methods: {
-    resolveType: function (typeID) {
-      switch (typeID) {
-        case 1:
-          return 'text'
-        case 2:
-          return 'number'
-        default:
-          return 'text'
-      }
-    }
-  },
-
-  computed: {
-    currentExecutor: function () {
-      return _.find(this.executors, { name: this.job.executorID })
+    addChecker () {
+      console.log('add checker')
+    },
+    addExecutor () {
+      console.log('add executor')
     }
   }
 }

@@ -1,38 +1,34 @@
 <template>
   <div>
-    <job-form :executors="executors" :onSubmit="onFormSubmit" />
+    <job-form :executors="executors" :checkers="checkers" :onSubmit="onFormSubmit" />
   </div>
 </template>
 
 <script>
-import { EventBus } from '@/EventBus'
+import { mapState } from 'vuex'
+
 import JobForm from '@/components/JobForm'
 
 export default {
-  data: () => ({
-    executors: []
-  }),
-
   components: {
     JobForm
   },
 
   methods: {
-    onFormSubmit: async function (job) {
-      try {
-        this.job = await this.api.post('/jobs', job)
-      } catch (e) {
-        EventBus.$emit('flash', { status: 'error', header: 'Something went wrong!', body: e.toString() })
-      }
+    onFormSubmit: function (job) {
+      console.log(job)
+      // TODO Send job
     }
   },
 
-  async created () {
-    try {
-      this.executors = await this.api.get('/executors')
-    } catch (e) {
-      EventBus.$emit('flash', { status: 'error', header: 'Something went wrong!', body: e.toString() })
-    }
+  computed: mapState([
+    'checkers',
+    'executors'
+  ]),
+
+  created () {
+    this.$store.dispatch('getCheckers')
+    this.$store.dispatch('getExecutors')
   }
 }
 </script>
