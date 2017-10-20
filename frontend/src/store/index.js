@@ -16,6 +16,14 @@ export default new Vuex.Store({
     executors: [],
     flash: null
   },
+  getters: {
+    checkerByIdentifier: (state, getters) => (identifier) => {
+      return state.checkers.find(e => e.identifier === identifier)
+    },
+    executorByIdentifier: (state, getters) => (identifier) => {
+      return state.executors.find(e => e.identifier === identifier)
+    }
+  },
   actions: {
     async getCheckers ({ commit }) {
       try {

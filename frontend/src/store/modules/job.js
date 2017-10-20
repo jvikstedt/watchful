@@ -36,10 +36,13 @@ export default {
       commit('addTask', { type: 'checker', identifier: '' })
     },
     addExecutor ({ getters, commit }) {
-      commit('addTask', { type: 'executor', identifier: '' })
+      commit('addTask', { type: 'executor', identifier: '', takes: {} })
     },
     setTaskIdentifier ({ commit }, { task, identifier }) {
       commit('setTask', { ...task, identifier: identifier })
+    },
+    updateTaskTakeValue ({ commit }, { task, takeName, value }) {
+      commit('setTask', { ...task, takes: { ...task.takes, [takeName]: value } })
     }
   }
 }

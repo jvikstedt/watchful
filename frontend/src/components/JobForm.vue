@@ -10,12 +10,21 @@
           <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
             <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
           </select>
+
+          <div v-if="task.identifier">
+            <div v-for="(take, index) in executorByIdentifier(task.identifier).takes">
+              <label v-text="take.name" />
+              <input :value="task.takes[take.name]" @input="updateTaskTakeValue({ task: task, takeName: take.name, value: $event.target.value })" />
+            </div>
+          </div>
         </div>
 
         <div v-if="task.type === 'checker'">
           <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
             <option v-for="(checker, index) in checkers">{{ checker.identifier }}</option>
           </select>
+
+          {{ checkerByIdentifier(task.identifier) }}
         </div>
 
         <i class="close icon" @click="removeTask(task.id)"></i>
@@ -39,11 +48,18 @@ export default {
     ...mapActions('job', [
       'addChecker',
       'addExecutor',
-      'setTaskIdentifier'
+      'setTaskIdentifier',
+      'updateTaskTakeValue'
     ]),
     ...mapMutations('job', [
       'removeTask'
-    ])
+    ]),
+    checkerByIdentifier (identifier) {
+      return this.$store.getters.checkerByIdentifier(identifier)
+    },
+    executorByIdentifier (identifier) {
+      return this.$store.getters.executorByIdentifier(identifier)
+    }
   },
 
   computed: {
