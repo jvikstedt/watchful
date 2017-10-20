@@ -6,7 +6,7 @@ import (
 )
 
 type checkerResp struct {
-	Name string `json:"name"`
+	Identifier string `json:"identifier"`
 }
 
 func (h handler) checkerAll(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +14,7 @@ func (h handler) checkerAll(w http.ResponseWriter, r *http.Request) {
 
 	responses := []checkerResp{}
 	for key, _ := range checkers {
-		responses = append(responses, checkerResp{Name: key})
+		responses = append(responses, checkerResp{Identifier: key})
 	}
 
 	json.NewEncoder(w).Encode(responses)

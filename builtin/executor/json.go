@@ -9,7 +9,7 @@ import (
 
 type JSON struct{}
 
-func (j JSON) Name() string {
+func (j JSON) Identifier() string {
 	return "json"
 }
 

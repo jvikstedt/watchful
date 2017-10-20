@@ -8,13 +8,13 @@ import (
 )
 
 type Executor interface {
-	Name() string
+	Identifier() string
 	Instruction() Instruction
 	Execute(map[string]interface{}) (map[string]interface{}, error)
 }
 
 type Checker interface {
-	Name() string
+	Identifier() string
 	Check(string, interface{}) error
 }
 
@@ -40,7 +40,7 @@ func NewService(log *log.Logger, storage storage.Service) *Service {
 }
 
 func (s *Service) RegisterExecutor(e Executor) {
-	s.executors[e.Name()] = e
+	s.executors[e.Identifier()] = e
 }
 
 func (s *Service) Executors() map[string]Executor {
@@ -52,7 +52,7 @@ func (s *Service) Checkers() map[string]Checker {
 }
 
 func (s *Service) RegisterChecker(c Checker) {
-	s.checkers[c.Name()] = c
+	s.checkers[c.Identifier()] = c
 }
 
 func (s *Service) Shutdown() error {

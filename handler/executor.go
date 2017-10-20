@@ -8,7 +8,7 @@ import (
 )
 
 type executorResp struct {
-	Name string `json:"name"`
+	Identifier string `json:"identifier"`
 	manager.Instruction
 }
 
@@ -17,7 +17,7 @@ func (h handler) executorAll(w http.ResponseWriter, r *http.Request) {
 
 	responses := []executorResp{}
 	for key, v := range executors {
-		responses = append(responses, executorResp{Name: key, Instruction: v.Instruction()})
+		responses = append(responses, executorResp{Identifier: key, Instruction: v.Instruction()})
 	}
 
 	json.NewEncoder(w).Encode(responses)

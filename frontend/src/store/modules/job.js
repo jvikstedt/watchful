@@ -33,13 +33,13 @@ export default {
   },
   actions: {
     addChecker ({ getters, commit }) {
-      commit('addTask', { type: 'checker', commandName: '' })
+      commit('addTask', { type: 'checker', identifier: '' })
     },
     addExecutor ({ getters, commit }) {
-      commit('addTask', { type: 'executor', commandName: '' })
+      commit('addTask', { type: 'executor', identifier: '' })
     },
-    setTaskCommandName ({ commit }, { task, name }) {
-      commit('setTask', { ...task, commandName: name })
+    setTaskIdentifier ({ commit }, { task, identifier }) {
+      commit('setTask', { ...task, identifier: identifier })
     }
   }
 }

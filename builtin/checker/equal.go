@@ -7,7 +7,7 @@ import (
 
 type Equal struct{}
 
-func (e Equal) Name() string {
+func (e Equal) Identifier() string {
 	return "equal"
 }
 
@@ -19,10 +19,10 @@ func (e Equal) Check(target string, i interface{}) error {
 			return err
 		}
 		if t != v {
-			return fmt.Errorf("Checker %s expected: %d got: %d", e.Name(), v, t)
+			return fmt.Errorf("Checker %s expected: %d got: %d", e.Identifier(), v, t)
 		}
 	default:
-		return fmt.Errorf("Checker %s received unknown datatype %T", e.Name(), v)
+		return fmt.Errorf("Checker %s received unknown datatype %T", e.Identifier(), v)
 	}
 	return nil
 }

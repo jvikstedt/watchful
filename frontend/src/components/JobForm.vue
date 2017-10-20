@@ -7,14 +7,14 @@
       <div v-for="(task, index) in tasks">
         {{ task.type }}
         <div v-if="task.type === 'executor'">
-          <select :value="task.commandName" @input="setTaskCommandName({task: task, name: $event.target.value})">
-            <option v-for="(executor, index) in executors">{{ executor.name }}</option>
+          <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
+            <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
           </select>
         </div>
 
         <div v-if="task.type === 'checker'">
-          <select :value="task.commandName" @input="setTaskCommandName({task: task, name: $event.target.value})">
-            <option v-for="(checker, index) in checkers">{{ checker.name }}</option>
+          <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
+            <option v-for="(checker, index) in checkers">{{ checker.identifier }}</option>
           </select>
         </div>
 
@@ -39,7 +39,7 @@ export default {
     ...mapActions('job', [
       'addChecker',
       'addExecutor',
-      'setTaskCommandName'
+      'setTaskIdentifier'
     ]),
     ...mapMutations('job', [
       'removeTask'

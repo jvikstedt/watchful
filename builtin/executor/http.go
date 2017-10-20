@@ -10,7 +10,7 @@ import (
 
 type HTTP struct{}
 
-func (h HTTP) Name() string {
+func (h HTTP) Identifier() string {
 	return "http"
 }
 
