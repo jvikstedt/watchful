@@ -6,6 +6,7 @@
     <div>
       <div v-for="(task, index) in tasks">
         {{ task.type }}
+        {{ task.id }}
         <div v-if="task.type === 'executor'">
           <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
             <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
@@ -23,9 +24,9 @@
           <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
             <option v-for="(checker, index) in checkers">{{ checker.identifier }}</option>
           </select>
-
-          {{ checkerByIdentifier(task.identifier) }}
         </div>
+
+        {{ executorsBefore(task) }}
 
         <i class="close icon" @click="removeTask(task.id)"></i>
       </div>
@@ -59,6 +60,9 @@ export default {
     },
     executorByIdentifier (identifier) {
       return this.$store.getters.executorByIdentifier(identifier)
+    },
+    executorsBefore (task) {
+      return this.$store.getters['job/executorsBefore'](task)
     }
   },
 

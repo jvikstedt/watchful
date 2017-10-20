@@ -13,6 +13,15 @@ export default {
     },
     orderedTasks (state) {
       return state.tasksOrder.map(id => state.tasks[id])
+    },
+    executors (state) {
+      return Object.keys(state.tasks).map(key => state.tasks[key]).filter(t => t.type === 'executor')
+    },
+    executorsBefore: (state, getters) => (task) => {
+      const position = state.tasksOrder.indexOf(task.id)
+      return getters.executors.filter(e => {
+        return state.tasksOrder.indexOf(e.id) < position
+      })
     }
   },
   mutations: {
