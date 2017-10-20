@@ -1,28 +1,34 @@
 <template>
   <div>
-    <select v-model="selectedExecutor">
-      <option v-for="(executor, index) in executors">{{ executor.name }}</option>
-    </select>
     <button class="ui button" @click="addExecutor">Add executor</button>
-
-    <select v-model="selectedChecker">
-      <option v-for="(checker, index) in checkers">{{ checker.name }}</option>
-    </select>
     <button class="ui button" @click="addChecker">Add checker</button>
+
+    <div>
+      <div v-for="(task, index) in tasks">
+        {{ task.type }}
+        <div v-if="task.type === 'executor'">
+          <select :value="task.commandName" @input="setTaskCommandName({task: task, name: $event.target.value})">
+            <option v-for="(executor, index) in executors">{{ executor.name }}</option>
+          </select>
+        </div>
+
+        <div v-if="task.type === 'checker'">
+          <select :value="task.commandName" @input="setTaskCommandName({task: task, name: $event.target.value})">
+            <option v-for="(checker, index) in checkers">{{ checker.name }}</option>
+          </select>
+        </div>
+
+        <i class="close icon" @click="removeTask(task.id)"></i>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions, mapGetters, mapMutations } from 'vuex'
+
 export default {
   props: {
-    executors: {
-      type: Array,
-      required: true
-    },
-    checkers: {
-      type: Array,
-      required: true
-    },
     onSubmit: {
       type: Function,
       required: true
@@ -30,12 +36,29 @@ export default {
   },
 
   methods: {
-    addChecker () {
-      console.log('add checker')
-    },
-    addExecutor () {
-      console.log('add executor')
-    }
+    ...mapActions('job', [
+      'addChecker',
+      'addExecutor',
+      'setTaskCommandName'
+    ]),
+    ...mapMutations('job', [
+      'removeTask'
+    ])
+  },
+
+  computed: {
+    ...mapState([
+      'checkers',
+      'executors'
+    ]),
+    ...mapGetters('job', {
+      tasks: 'orderedTasks'
+    })
+  },
+
+  created () {
+    this.$store.dispatch('getCheckers')
+    this.$store.dispatch('getExecutors')
   }
 }
 </script>

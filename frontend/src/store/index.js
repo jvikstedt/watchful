@@ -3,9 +3,14 @@ import Vuex from 'vuex'
 
 import api from '@/Api'
 
+import job from './modules/job'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  modules: {
+    'job': job
+  },
   state: {
     checkers: [],
     executors: [],
