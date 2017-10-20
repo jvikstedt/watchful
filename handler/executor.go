@@ -17,7 +17,7 @@ func (h handler) executorAll(w http.ResponseWriter, r *http.Request) {
 
 	responses := []executorResp{}
 	for key, v := range executors {
-		responses = append(responses, executorResp{Name: key, Instruction: v.Instructions()})
+		responses = append(responses, executorResp{Name: key, Instruction: v.Instruction()})
 	}
 
 	json.NewEncoder(w).Encode(responses)

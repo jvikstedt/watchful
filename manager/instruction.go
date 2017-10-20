@@ -6,6 +6,7 @@ const (
 	ParamInt ParamType = iota
 	ParamString
 	ParamFloat
+	ParamBytes
 )
 
 type Param struct {
@@ -15,6 +16,7 @@ type Param struct {
 }
 
 type Instruction struct {
+	Dynamic bool    `json:"dynamic"`
 	Takes   []Param `json:"takes"`
 	Returns []Param `json:"returns"`
 }

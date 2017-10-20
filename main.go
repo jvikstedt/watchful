@@ -29,8 +29,9 @@ func main() {
 	defer storage.Close()
 
 	manager := manager.NewService(logger, storage)
-	manager.RegisterChecker(&checker.Equal{})
-	manager.RegisterExecutor(&executor.HTTP{})
+	manager.RegisterChecker(checker.Equal{})
+	manager.RegisterExecutor(executor.HTTP{})
+	manager.RegisterExecutor(executor.JSON{})
 
 	go manager.Run()
 

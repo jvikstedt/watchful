@@ -9,7 +9,7 @@ import (
 
 type Executor interface {
 	Name() string
-	Instructions() Instruction
+	Instruction() Instruction
 	Execute(map[string]interface{}) (map[string]interface{}, error)
 }
 
@@ -45,6 +45,10 @@ func (s *Service) RegisterExecutor(e Executor) {
 
 func (s *Service) Executors() map[string]Executor {
 	return s.executors
+}
+
+func (s *Service) Checkers() map[string]Checker {
+	return s.checkers
 }
 
 func (s *Service) RegisterChecker(c Checker) {
