@@ -39,7 +39,7 @@ export default {
       commit('addTask', { type: 'executor', identifier: '', takes: {} })
     },
     setTaskIdentifier ({ commit }, { task, identifier }) {
-      commit('setTask', { ...task, identifier: identifier })
+      commit('setTask', { ...task, identifier: identifier, takes: [] })
     },
     updateTaskTakeValue ({ commit }, { task, takeName, value }) {
       commit('setTask', { ...task, takes: { ...task.takes, [takeName]: value } })
