@@ -1,41 +1,33 @@
 <template>
   <div>
-    <button class="ui button" @click="addExecutor">Add executor</button>
-    <button class="ui button" @click="addChecker">Add checker</button>
+    <button class="ui button" @click="addTask({ inputs: [] })">Add task</button>
 
-    <div>
-      <div v-for="(task, index) in tasks">
-        {{ task.type }}
+    <div class="ui raised segments">
+      <div class="ui segment" v-for="(task, index) in tasks">
         {{ task.id }}
-        <div v-if="task.type === 'executor'">
-          <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
-            <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
-          </select>
+        <i class="close icon" @click="removeTask(task.id)"></i>
+        <select :value="task.executor" @input="updateTask({task: task, attributes: { executor: $event.target.value }})">
+          <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
+        </select>
+        <div v-if="task.executor">
+          <b>Inputs:</b>
+          <div v-for="(input, index) in findExecutor(task.executor).input">
+            <label v-text="input.name" />
+            <input :value="task.inputs[input.name]" />
+          </div>
 
-          <div v-if="task.identifier">
-            <div v-for="(take, index) in executorByIdentifier(task.identifier).takes">
-              <label v-text="take.name" />
-              <input :value="task.takes[take.name]" @input="updateTaskTakeValue({ task: task, takeName: take.name, value: $event.target.value })" />
-            </div>
+          <b>Outputs:</b>
+          <div v-for="(output, index) in findExecutor(task.executor).output">
+            <span v-text="output.name" />
           </div>
         </div>
-
-        <div v-if="task.type === 'checker'">
-          <select :value="task.identifier" @input="setTaskIdentifier({task: task, identifier: $event.target.value})">
-            <option v-for="(checker, index) in checkers">{{ checker.identifier }}</option>
-          </select>
-        </div>
-
-        {{ executorsBefore(task) }}
-
-        <i class="close icon" @click="removeTask(task.id)"></i>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   props: {
@@ -46,38 +38,26 @@ export default {
   },
 
   methods: {
-    ...mapActions('job', [
-      'addChecker',
-      'addExecutor',
-      'setTaskIdentifier',
-      'updateTaskTakeValue'
-    ]),
     ...mapMutations('job', [
-      'removeTask'
+      'addTask',
+      'removeTask',
+      'updateTask'
     ]),
-    checkerByIdentifier (identifier) {
-      return this.$store.getters.checkerByIdentifier(identifier)
-    },
-    executorByIdentifier (identifier) {
-      return this.$store.getters.executorByIdentifier(identifier)
-    },
-    executorsBefore (task) {
-      return this.$store.getters['job/executorsBefore'](task)
+    findExecutor (identifier) {
+      return this.$store.getters.findExecutor(identifier)
     }
   },
 
   computed: {
     ...mapState([
-      'checkers',
       'executors'
     ]),
-    ...mapGetters('job', {
-      tasks: 'orderedTasks'
-    })
+    ...mapState('job', [
+      'tasks'
+    ])
   },
 
   created () {
-    this.$store.dispatch('getCheckers')
     this.$store.dispatch('getExecutors')
   }
 }

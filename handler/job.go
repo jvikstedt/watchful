@@ -16,13 +16,10 @@ func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	job.Serialize()
-
-	newJob, err := h.storage.JobCreate(job.ExecutorID, job.TakesRaw)
+	newJob, err := h.storage.JobCreate(job.Name)
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}
-	newJob.Deserialize()
 
 	json.NewEncoder(w).Encode(newJob)
 }

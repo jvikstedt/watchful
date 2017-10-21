@@ -12,27 +12,15 @@ export default new Vuex.Store({
     'job': job
   },
   state: {
-    checkers: [],
     executors: [],
     flash: null
   },
   getters: {
-    checkerByIdentifier: (state, getters) => (identifier) => {
-      return state.checkers.find(e => e.identifier === identifier)
-    },
-    executorByIdentifier: (state, getters) => (identifier) => {
+    findExecutor: (state, getters) => (identifier) => {
       return state.executors.find(e => e.identifier === identifier)
     }
   },
   actions: {
-    async getCheckers ({ commit }) {
-      try {
-        const checkers = await api.get('/checkers')
-        commit('setCheckers', checkers)
-      } catch (e) {
-        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() })
-      }
-    },
     async getExecutors ({ commit }) {
       try {
         const executors = await api.get('/executors')
@@ -43,9 +31,6 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    setCheckers (state, checkers) {
-      state.checkers = checkers
-    },
     setExecutors (state, executors) {
       state.executors = executors
     },
