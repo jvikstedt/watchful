@@ -15,11 +15,11 @@ func (e Equal) Identifier() string {
 
 func (e Equal) Instruction() manager.Instruction {
 	return manager.Instruction{
-		Takes: []manager.Param{
+		Input: []manager.Param{
 			manager.Param{Type: manager.ParamString, Name: "value", Required: true},
 			manager.Param{Type: manager.ParamAny, Name: "actual", Required: true},
 		},
-		Returns: []manager.Param{},
+		Output: []manager.Param{},
 	}
 }
 

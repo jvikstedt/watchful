@@ -16,10 +16,10 @@ func (h HTTP) Identifier() string {
 
 func (h HTTP) Instruction() manager.Instruction {
 	return manager.Instruction{
-		Takes: []manager.Param{
+		Input: []manager.Param{
 			manager.Param{Type: manager.ParamString, Name: "url", Required: true},
 		},
-		Returns: []manager.Param{
+		Output: []manager.Param{
 			manager.Param{Type: manager.ParamInt, Name: "statusCode"},
 			manager.Param{Type: manager.ParamBytes, Name: "body"},
 		},

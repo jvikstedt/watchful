@@ -18,6 +18,6 @@ type Param struct {
 
 type Instruction struct {
 	Dynamic bool    `json:"dynamic"`
-	Takes   []Param `json:"takes"`
-	Returns []Param `json:"returns"`
+	Input   []Param `json:"input"`
+	Output  []Param `json:"output"`
 }

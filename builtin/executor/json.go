@@ -16,10 +16,10 @@ func (j JSON) Identifier() string {
 func (j JSON) Instruction() manager.Instruction {
 	return manager.Instruction{
 		Dynamic: true,
-		Takes: []manager.Param{
+		Input: []manager.Param{
 			manager.Param{Type: manager.ParamBytes, Name: "rawjson", Required: true},
 		},
-		Returns: []manager.Param{},
+		Output: []manager.Param{},
 	}
 }
 
