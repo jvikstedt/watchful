@@ -41,10 +41,6 @@ func New(logger *log.Logger, storage storage.Service, manager *manager.Service) 
 		r.Route("/executors", func(r chi.Router) {
 			r.Get("/", h.executorAll)
 		})
-
-		r.Route("/checkers", func(r chi.Router) {
-			r.Get("/", h.checkerAll)
-		})
 	})
 	return r
 }

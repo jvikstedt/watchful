@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/jvikstedt/watchful/builtin/checker"
 	"github.com/jvikstedt/watchful/builtin/executor"
 	"github.com/jvikstedt/watchful/handler"
 	"github.com/jvikstedt/watchful/manager"
@@ -29,7 +28,7 @@ func main() {
 	defer storage.Close()
 
 	manager := manager.NewService(logger, storage)
-	manager.RegisterChecker(checker.Equal{})
+	manager.RegisterExecutor(executor.Equal{})
 	manager.RegisterExecutor(executor.HTTP{})
 	manager.RegisterExecutor(executor.JSON{})
 

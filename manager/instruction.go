@@ -7,6 +7,7 @@ const (
 	ParamString
 	ParamFloat
 	ParamBytes
+	ParamAny
 )
 
 type Param struct {

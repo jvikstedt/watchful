@@ -13,11 +13,6 @@ type Executor interface {
 	Execute(map[string]interface{}) (map[string]interface{}, error)
 }
 
-type Checker interface {
-	Identifier() string
-	Check(string, interface{}) error
-}
-
 type Handler interface {
 }
 
@@ -25,7 +20,6 @@ type Service struct {
 	log       *log.Logger
 	storage   storage.Service
 	executors map[string]Executor
-	checkers  map[string]Checker
 	close     chan bool
 }
 
@@ -34,7 +28,6 @@ func NewService(log *log.Logger, storage storage.Service) *Service {
 		log:       log,
 		storage:   storage,
 		executors: make(map[string]Executor),
-		checkers:  make(map[string]Checker),
 		close:     make(chan bool),
 	}
 }
@@ -45,14 +38,6 @@ func (s *Service) RegisterExecutor(e Executor) {
 
 func (s *Service) Executors() map[string]Executor {
 	return s.executors
-}
-
-func (s *Service) Checkers() map[string]Checker {
-	return s.checkers
-}
-
-func (s *Service) RegisterChecker(c Checker) {
-	s.checkers[c.Identifier()] = c
 }
 
 func (s *Service) Shutdown() error {
