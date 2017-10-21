@@ -36,6 +36,16 @@ func New(logger *log.Logger, storage storage.Service, manager *manager.Service) 
 
 		r.Route("/jobs", func(r chi.Router) {
 			r.Post("/", h.jobCreate)
+			r.Route("/{jobID}", func(r chi.Router) {
+				r.Get("/tasks", h.taskAll)
+			})
+		})
+
+		r.Route("/tasks", func(r chi.Router) {
+			r.Post("/", h.taskCreate)
+			r.Route("/{taskID}", func(r chi.Router) {
+				r.Delete("/", h.taskDelete)
+			})
 		})
 
 		r.Route("/executors", func(r chi.Router) {

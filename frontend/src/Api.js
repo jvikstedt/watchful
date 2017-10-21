@@ -12,6 +12,12 @@ class Api {
     return response.data
   }
 
+  async delete (uri) {
+    const response = await axios.delete(`${this.baseURL}${uri}`)
+
+    return response.data
+  }
+
   async post (uri, body) {
     const response = await axios.post(`${this.baseURL}${uri}`, body, this.config)
 

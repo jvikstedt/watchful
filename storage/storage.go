@@ -9,7 +9,9 @@ type Service interface {
 	JobCreate(string) (*model.Job, error)
 	JobGetOne(int) (*model.Job, error)
 	TaskCreate(int, string) (*model.Task, error)
+	TaskDelete(int) (*model.Task, error)
 	TaskGetOne(int) (*model.Task, error)
+	TasksByJobID(int) ([]*model.Task, error)
 	InputCreate(int, string) (*model.Input, error)
 	InputGetOne(int) (*model.Input, error)
 }

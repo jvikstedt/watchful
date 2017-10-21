@@ -1,41 +1,61 @@
 import _ from 'lodash'
 
+import api from '@/Api'
+
 export default {
   namespaced: true,
   state: {
+    selectedExecutor: '',
     tasksOrder: [],
-    tasks: {},
-    nextID: 0
+    tasks: {}
   },
   getters: {
     orderedTasks (state) {
       return state.tasksOrder.map(id => state.tasks[id])
-    },
-    tasksBefore: (state, getters) => (task) => {
-      const position = state.tasksOrder.indexOf(task.id)
-      return state.tasks.filter(e => {
-        return state.tasksOrder.indexOf(e.id) < position
-      })
     }
   },
   mutations: {
-    addTask (state, task = {}) {
-      const nextID = state.nextID
-      state.nextID = nextID + 1
-
-      state.tasks = { ...state.tasks, [nextID]: { ...task, id: nextID } }
-      state.tasksOrder = [ ...state.tasksOrder, nextID ]
-    },
-    setTask (state, task) {
+    addTask (state, task) {
       state.tasks = { ...state.tasks, [task.id]: task }
+      state.tasksOrder = [ ...state.tasksOrder, task.id ]
     },
-    updateTask (state, payload = {}) {
-      const task = payload.task
-      state.tasks = { ...state.tasks, [task.id]: { ...task, ...payload.attributes } }
+    setTasks (state, tasks) {
+      state.tasksOrder = tasks.map(t => t.id)
+      state.tasks = Object.assign({}, ...tasks.map(t => ({[t['id']]: t})))
     },
-    removeTask (state, id) {
-      state.tasks = _.omit(state.tasks, [id])
-      state.tasksOrder = state.tasksOrder.filter(element => element !== id)
+    removeTask (state, task) {
+      state.tasks = _.omit(state.tasks, [task.id])
+      state.tasksOrder = state.tasksOrder.filter(element => element !== task.id)
+    },
+    setSelectedExecutor (state, executor) {
+      state.selectedExecutor = executor
+    }
+  },
+  actions: {
+    async addTask ({ commit, state }) {
+      const executor = state.selectedExecutor
+      try {
+        const task = await api.post('/tasks', { jobID: 1, executor })
+        commit('addTask', task)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async removeTask ({ commit, state }, taskID) {
+      try {
+        const task = await api.delete(`/tasks/${taskID}`)
+        commit('removeTask', task)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async getTasks ({ commit, state }, jobID) {
+      try {
+        const tasks = await api.get(`/jobs/${jobID}/tasks`)
+        commit('setTasks', tasks)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
     }
   }
 }
