@@ -7,10 +7,14 @@
     <button class="ui button" @click="addTask">Add task</button>
 
     <div class="ui raised segments">
-      <div class="ui segment" v-for="(task, index) in orderedTasks">
+      <div class="ui segment" v-for="(task, _) in orderedTasks">
         {{ task.id }}
         {{ task.executor }}
         <i class="close icon" @click="removeTask(task.id)"></i>
+        <div v-for="(inputID, _) in task.inputs">
+          <label v-text="getInputByID(inputID).name" />
+          <input :value="getInputByID(inputID).value" @input="setInputValue({inputID: inputID, value: $event.target.value})" />
+        </div>
       </div>
     </div>
   </div>
@@ -22,12 +26,17 @@ import { mapState, mapMutations, mapActions, mapGetters } from 'vuex'
 export default {
   methods: {
     ...mapMutations('job', [
-      'setSelectedExecutor'
+      'setSelectedExecutor',
+      'updateInputValue',
+      'setInputValue'
     ]),
     ...mapActions('job', [
       'addTask',
       'removeTask'
-    ])
+    ]),
+    getInputByID (id) {
+      return this.$store.state.job.inputs[id]
+    }
   },
 
   computed: {

@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 CREATE TABLE IF NOT EXISTS inputs (
 	id integer PRIMARY KEY,
 	task_id integer,
+	name text,
 	value text,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp,

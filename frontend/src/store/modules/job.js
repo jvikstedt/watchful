@@ -7,7 +7,8 @@ export default {
   state: {
     selectedExecutor: '',
     tasksOrder: [],
-    tasks: {}
+    tasks: {},
+    inputs: {}
   },
   getters: {
     orderedTasks (state) {
@@ -23,9 +24,16 @@ export default {
       state.tasksOrder = tasks.map(t => t.id)
       state.tasks = Object.assign({}, ...tasks.map(t => ({[t['id']]: t})))
     },
+    setInputs (state, inputs) {
+      state.inputs = Object.assign({}, ...inputs.map(t => ({[t['id']]: t})))
+    },
     removeTask (state, task) {
       state.tasks = _.omit(state.tasks, [task.id])
       state.tasksOrder = state.tasksOrder.filter(element => element !== task.id)
+    },
+    setInputValue (state, payload) {
+      const input = { ...state.inputs[payload.inputID], value: payload.value }
+      state.inputs = { ...state.inputs, [payload.inputID]: input }
     },
     setSelectedExecutor (state, executor) {
       state.selectedExecutor = executor
@@ -51,8 +59,13 @@ export default {
     },
     async getTasks ({ commit, state }, jobID) {
       try {
-        const tasks = await api.get(`/jobs/${jobID}/tasks`)
+        const response = await api.get(`/jobs/${jobID}/tasks`)
+
+        const inputs = [].concat.apply([], response.map(t => t.inputs))
+        const tasks = response.map(r => ({ ...r, inputs: r.inputs.map(i => i.id) }))
+
         commit('setTasks', tasks)
+        commit('setInputs', inputs)
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
