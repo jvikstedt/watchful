@@ -31,18 +31,17 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
-	task := &model.Task{}
+	task := model.Task{}
 
-	if err := decoder.Decode(task); h.checkErr(err, w, http.StatusUnprocessableEntity) {
+	if err := decoder.Decode(&task); h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}
 
-	newTask, err := h.storage.Task().Create(task.JobID, task.Executor)
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
+	if h.checkErr(h.storage.Task().Create(&task), w, http.StatusUnprocessableEntity) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(newTask)
+	json.NewEncoder(w).Encode(task)
 }
 
 func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
@@ -56,8 +55,8 @@ func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.storage.Task().Delete(taskID)
-	if h.checkErr(err, w, http.StatusInternalServerError) {
+	task := model.Task{ID: taskID}
+	if h.checkErr(h.storage.Task().Delete(&task), w, http.StatusInternalServerError) {
 		return
 	}
 

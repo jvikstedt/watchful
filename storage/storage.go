@@ -10,13 +10,13 @@ type Service interface {
 }
 
 type Job interface {
-	Create(string) (*model.Job, error)
-	GetOne(int) (*model.Job, error)
+	Create(*model.Job) error
+	GetOne(int, *model.Job) error
 }
 
 type Task interface {
-	Create(int, string) (*model.Task, error)
-	Delete(int) (*model.Task, error)
-	GetOne(int) (*model.Task, error)
+	Create(*model.Task) error
+	Delete(*model.Task) error
+	GetOne(int, *model.Task) error
 	AllByJobID(int) ([]*model.Task, error)
 }

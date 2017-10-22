@@ -6,36 +6,33 @@ type sqliteTask struct {
 	*sqlite
 }
 
-func (db *sqliteTask) Create(jobID int, executor string) (*model.Task, error) {
-	result, err := db.Exec(`INSERT INTO tasks (job_id, executor, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, jobID, executor)
+func (s *sqliteTask) Create(task *model.Task) error {
+	result, err := s.db.Exec(`INSERT INTO tasks (job_id, executor, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, task.JobID, task.Executor)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return db.GetOne(int(id))
+	return s.GetOne(int(id), task)
 }
 
-func (db *sqliteTask) GetOne(id int) (*model.Task, error) {
-	task := &model.Task{}
-
-	err := db.Get(task, "SELECT * FROM tasks WHERE id=$1", id)
-	return task, err
+func (s *sqliteTask) GetOne(id int, task *model.Task) error {
+	return s.db.Get(task, "SELECT * FROM tasks WHERE id=$1", id)
 }
 
-func (db *sqliteTask) Delete(id int) (*model.Task, error) {
-	_, err := db.Exec(`UPDATE tasks SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, id)
+func (s *sqliteTask) Delete(task *model.Task) error {
+	_, err := s.db.Exec(`UPDATE tasks SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, task.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return db.GetOne(id)
+	return s.GetOne(task.ID, task)
 }
 
-func (db *sqliteTask) AllByJobID(jobID int) ([]*model.Task, error) {
+func (s *sqliteTask) AllByJobID(jobID int) ([]*model.Task, error) {
 	tasks := []*model.Task{}
-	err := db.Select(&tasks, "SELECT * FROM tasks WHERE job_id = ? AND deleted_at IS NULL", jobID)
+	err := s.db.Select(&tasks, "SELECT * FROM tasks WHERE job_id = ? AND deleted_at IS NULL", jobID)
 	return tasks, err
 }

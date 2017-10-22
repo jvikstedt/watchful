@@ -16,10 +16,9 @@ func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newJob, err := h.storage.Job().Create(job.Name)
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
+	if h.checkErr(h.storage.Job().Create(job), w, http.StatusUnprocessableEntity) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(newJob)
+	json.NewEncoder(w).Encode(job)
 }
