@@ -5,8 +5,10 @@ import (
 )
 
 type Job struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at" `
-	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+	ID        uint       `json:"id" gorm:"primary_key"`
+	Name      string     `json:"name"`
+	Tasks     []Task     `json:"tasks"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	DeletedAt *time.Time `json:"deletedAt"`
 }

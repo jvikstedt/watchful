@@ -23,9 +23,9 @@ export default {
       state.tasksOrder = tasks.map(t => t.id)
       state.tasks = Object.assign({}, ...tasks.map(t => ({[t['id']]: t})))
     },
-    removeTask (state, task) {
-      state.tasks = _.omit(state.tasks, [task.id])
-      state.tasksOrder = state.tasksOrder.filter(element => element !== task.id)
+    removeTask (state, taskID) {
+      state.tasks = _.omit(state.tasks, [taskID])
+      state.tasksOrder = state.tasksOrder.filter(element => element !== taskID)
     },
     setSelectedExecutor (state, executor) {
       state.selectedExecutor = executor
@@ -43,8 +43,8 @@ export default {
     },
     async removeTask ({ commit, state }, taskID) {
       try {
-        const task = await api.delete(`/tasks/${taskID}`)
-        commit('removeTask', task)
+        await api.delete(`/tasks/${taskID}`)
+        commit('removeTask', taskID)
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
