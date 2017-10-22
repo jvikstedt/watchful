@@ -12,13 +12,8 @@ export default new Vuex.Store({
     'job': job
   },
   state: {
-    executors: [],
+    executors: {},
     flash: null
-  },
-  getters: {
-    findExecutor: (state, getters) => (identifier) => {
-      return state.executors.find(e => e.identifier === identifier)
-    }
   },
   actions: {
     async getExecutors ({ commit }) {
@@ -32,7 +27,7 @@ export default new Vuex.Store({
   },
   mutations: {
     setExecutors (state, executors) {
-      state.executors = executors
+      state.executors = Object.assign({}, ...executors.map(e => ({[e['identifier']]: e})))
     },
     setFlash (state, flash) {
       state.flash = flash
