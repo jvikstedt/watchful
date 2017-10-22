@@ -5,10 +5,18 @@ import "github.com/jvikstedt/watchful/model"
 type Service interface {
 	Close() error
 	EnsureTables() error
-	JobCreate(string) (*model.Job, error)
-	JobGetOne(int) (*model.Job, error)
-	TaskCreate(int, string) (*model.Task, error)
-	TaskDelete(int) (*model.Task, error)
-	TaskGetOne(int) (*model.Task, error)
-	TasksByJobID(int) ([]*model.Task, error)
+	Job() Job
+	Task() Task
+}
+
+type Job interface {
+	Create(string) (*model.Job, error)
+	GetOne(int) (*model.Job, error)
+}
+
+type Task interface {
+	Create(int, string) (*model.Task, error)
+	Delete(int) (*model.Task, error)
+	GetOne(int) (*model.Task, error)
+	AllByJobID(int) ([]*model.Task, error)
 }

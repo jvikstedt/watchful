@@ -40,8 +40,11 @@ func New(filepath string) (storage.Service, error) {
 	}
 
 	storage := &sqlite{
-		db: db,
+		DB: db,
 	}
+
+	storage.sqliteTask = &sqliteTask{storage}
+	storage.sqliteJob = &sqliteJob{storage}
 
 	storage.EnsureTables()
 
@@ -49,14 +52,24 @@ func New(filepath string) (storage.Service, error) {
 }
 
 type sqlite struct {
-	db *sqlx.DB
+	*sqlx.DB
+	sqliteTask *sqliteTask
+	sqliteJob  *sqliteJob
 }
 
 func (s *sqlite) EnsureTables() error {
-	s.db.MustExec(schema)
+	s.MustExec(schema)
 	return nil
 }
 
+func (s *sqlite) Job() storage.Job {
+	return s.sqliteJob
+}
+
+func (s *sqlite) Task() storage.Task {
+	return s.sqliteTask
+}
+
 func (s *sqlite) Close() error {
-	return s.db.Close()
+	return s.Close()
 }
