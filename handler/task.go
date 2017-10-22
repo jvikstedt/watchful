@@ -20,8 +20,8 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks := []model.Task{}
-	if h.checkErr(h.storage.TasksByJobID(jobID, &tasks), w, http.StatusInternalServerError) {
+	tasks, err := h.storage.TasksByJobID(jobID)
+	if h.checkErr(err, w, http.StatusInternalServerError) {
 		return
 	}
 
@@ -37,11 +37,12 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.storage.TaskCreate(task), w, http.StatusUnprocessableEntity) {
+	newTask, err := h.storage.TaskCreate(task.JobID, task.Executor)
+	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(task)
+	json.NewEncoder(w).Encode(newTask)
 }
 
 func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
@@ -55,9 +56,10 @@ func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.storage.TaskDelete(taskID), w, http.StatusInternalServerError) {
+	task, err := h.storage.TaskDelete(taskID)
+	if h.checkErr(err, w, http.StatusInternalServerError) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(task)
 }

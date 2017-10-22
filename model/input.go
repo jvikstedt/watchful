@@ -5,10 +5,9 @@ import (
 )
 
 type Input struct {
-	ID        uint       `json:"id" gorm:"primary_key"`
-	TaskID    uint       `json:"taskID"`
-	Value     string     `json:"value"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `json:"deletedAt"`
+	ID        int       `json:"id"`
+	TaskID    int       `json:"taskID" db:"task_id"`
+	Value     string    `json:"value"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at" `
+	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 }

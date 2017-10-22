@@ -30,6 +30,10 @@ func New(logger *log.Logger, storage storage.Service, manager *manager.Service) 
 	h := handler{logger, storage, manager}
 
 	r.Route("/api/v1", func(r chi.Router) {
+		r.Route("/projects", func(r chi.Router) {
+			r.Get("/", h.projectAll)
+		})
+
 		r.Route("/jobs", func(r chi.Router) {
 			r.Post("/", h.jobCreate)
 			r.Route("/{jobID}", func(r chi.Router) {
