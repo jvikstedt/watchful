@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS inputs (
 	value text,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp,
+	deleted_at timestamp,
 	FOREIGN KEY(task_id) REFERENCES tasks(id)
 );
 `

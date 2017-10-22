@@ -9,6 +9,11 @@ import (
 	"github.com/jvikstedt/watchful/model"
 )
 
+type taskResponse struct {
+	model.Task
+	Inputs []model.Input `json:"inputs"`
+}
+
 func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "jobID")
 	if idStr == "" {
@@ -25,7 +30,27 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(tasks)
+	inputs, err := h.model.InputAllByJobID(jobID)
+	if h.checkErr(err, w, http.StatusInternalServerError) {
+		return
+	}
+
+	responses := []taskResponse{}
+	for _, task := range tasks {
+		tr := taskResponse{
+			Task:   task,
+			Inputs: []model.Input{},
+		}
+
+		for _, input := range inputs {
+			if input.TaskID == task.ID {
+				tr.Inputs = append(tr.Inputs, input)
+			}
+		}
+		responses = append(responses, tr)
+	}
+
+	json.NewEncoder(w).Encode(responses)
 }
 
 func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {

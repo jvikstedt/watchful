@@ -25,6 +25,6 @@ func (s *Service) TaskGetOne(id int, task *Task) error {
 	return s.db.TaskGetOne(id, task)
 }
 
-func (s *Service) TaskAllByJobID(id int) ([]*Task, error) {
+func (s *Service) TaskAllByJobID(id int) ([]Task, error) {
 	return s.db.TaskAllByJobID(id)
 }
