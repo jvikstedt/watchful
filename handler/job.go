@@ -16,7 +16,7 @@ func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.storage.Job().Create(job), w, http.StatusUnprocessableEntity) {
+	if h.checkErr(h.model.JobCreate(job), w, http.StatusUnprocessableEntity) {
 		return
 	}
 

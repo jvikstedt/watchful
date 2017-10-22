@@ -2,15 +2,11 @@ package sqlite
 
 import "github.com/jvikstedt/watchful/model"
 
-type sqliteJob struct {
-	*sqlite
-}
-
-func (s *sqliteJob) GetOne(id int, job *model.Job) error {
+func (s *sqlite) JobGetOne(id int, job *model.Job) error {
 	return s.db.Get(job, "SELECT jobs.* FROM jobs WHERE id=$1", id)
 }
 
-func (s *sqliteJob) Create(job *model.Job) error {
+func (s *sqlite) JobCreate(job *model.Job) error {
 	result, err := s.db.Exec(`INSERT INTO jobs (name, created_at, updated_at) VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, job.Name)
 	if err != nil {
 		return err
@@ -20,5 +16,5 @@ func (s *sqliteJob) Create(job *model.Job) error {
 		return err
 	}
 
-	return s.GetOne(int(id), job)
+	return s.JobGetOne(int(id), job)
 }

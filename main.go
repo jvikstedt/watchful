@@ -10,6 +10,7 @@ import (
 	"github.com/jvikstedt/watchful/builtin/executor"
 	"github.com/jvikstedt/watchful/handler"
 	"github.com/jvikstedt/watchful/manager"
+	"github.com/jvikstedt/watchful/model"
 	"github.com/jvikstedt/watchful/storage/sqlite"
 )
 
@@ -27,14 +28,16 @@ func main() {
 	}
 	defer storage.Close()
 
-	manager := manager.NewService(logger, storage)
+	model := model.New(storage)
+
+	manager := manager.NewService(logger, model)
 	manager.RegisterExecutor(executor.Equal{})
 	manager.RegisterExecutor(executor.HTTP{})
 	manager.RegisterExecutor(executor.JSON{})
 
 	go manager.Run()
 
-	http.Handle("/", handler.New(logger, storage, manager))
+	http.Handle("/", handler.New(logger, model, manager))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {

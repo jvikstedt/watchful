@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/jvikstedt/watchful/storage"
+	"github.com/jvikstedt/watchful/model"
 )
 
 type Executor interface {
@@ -18,15 +18,15 @@ type Handler interface {
 
 type Service struct {
 	log       *log.Logger
-	storage   storage.Service
+	model     *model.Service
 	executors map[string]Executor
 	close     chan bool
 }
 
-func NewService(log *log.Logger, storage storage.Service) *Service {
+func NewService(log *log.Logger, model *model.Service) *Service {
 	return &Service{
 		log:       log,
-		storage:   storage,
+		model:     model,
 		executors: make(map[string]Executor),
 		close:     make(chan bool),
 	}

@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/jvikstedt/watchful/storage"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -33,7 +32,7 @@ CREATE TABLE IF NOT EXISTS inputs (
 );
 `
 
-func New(filepath string) (storage.Service, error) {
+func New(filepath string) (*sqlite, error) {
 	db, err := sqlx.Open("sqlite3", filepath)
 	if err != nil {
 		return nil, err
@@ -43,31 +42,18 @@ func New(filepath string) (storage.Service, error) {
 		db: db,
 	}
 
-	storage.sqliteTask = &sqliteTask{storage}
-	storage.sqliteJob = &sqliteJob{storage}
-
 	storage.EnsureTables()
 
 	return storage, nil
 }
 
 type sqlite struct {
-	db         *sqlx.DB
-	sqliteTask *sqliteTask
-	sqliteJob  *sqliteJob
+	db *sqlx.DB
 }
 
 func (s *sqlite) EnsureTables() error {
 	s.db.MustExec(schema)
 	return nil
-}
-
-func (s *sqlite) Job() storage.Job {
-	return s.sqliteJob
-}
-
-func (s *sqlite) Task() storage.Task {
-	return s.sqliteTask
 }
 
 func (s *sqlite) Close() error {

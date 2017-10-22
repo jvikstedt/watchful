@@ -9,10 +9,10 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 	"github.com/jvikstedt/watchful/manager"
-	"github.com/jvikstedt/watchful/storage"
+	"github.com/jvikstedt/watchful/model"
 )
 
-func New(logger *log.Logger, storage storage.Service, manager *manager.Service) http.Handler {
+func New(logger *log.Logger, model *model.Service, manager *manager.Service) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -27,7 +27,7 @@ func New(logger *log.Logger, storage storage.Service, manager *manager.Service) 
 	})
 	r.Use(cors.Handler)
 
-	h := handler{logger, storage, manager}
+	h := handler{logger, model, manager}
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
@@ -53,7 +53,7 @@ func New(logger *log.Logger, storage storage.Service, manager *manager.Service) 
 
 type handler struct {
 	log     *log.Logger
-	storage storage.Service
+	model   *model.Service
 	manager *manager.Service
 }
 
