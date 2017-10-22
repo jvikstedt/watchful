@@ -13,6 +13,8 @@ type db interface {
 	TaskAllByJobID(int) ([]Task, error)
 
 	InputAllByJobID(int) ([]Input, error)
+	InputCreate(*Input) error
+	InputGetOne(int, *Input) error
 }
 
 type Service struct {

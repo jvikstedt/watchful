@@ -66,7 +66,24 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(task)
+	response := taskResponse{
+		Task:   task,
+		Inputs: []model.Input{},
+	}
+	executor := h.manager.Executors()[task.Executor]
+	for _, i := range executor.Instruction().Input {
+		input := model.Input{
+			TaskID: task.ID,
+			Name:   i.Name,
+			Value:  "",
+		}
+		if h.checkErr(h.model.InputCreate(&input), w, http.StatusUnprocessableEntity) {
+			return
+		}
+		response.Inputs = append(response.Inputs, input)
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {

@@ -16,16 +16,12 @@ export default {
     }
   },
   mutations: {
-    addTask (state, task) {
-      state.tasks = { ...state.tasks, [task.id]: task }
-      state.tasksOrder = [ ...state.tasksOrder, task.id ]
-    },
     setTasks (state, tasks) {
-      state.tasksOrder = tasks.map(t => t.id)
-      state.tasks = Object.assign({}, ...tasks.map(t => ({[t['id']]: t})))
+      state.tasks = Object.assign(state.tasks, ...tasks.map(t => ({[t['id']]: t})))
+      state.tasksOrder = Object.keys(state.tasks).map(k => state.tasks[k].id)
     },
     setInputs (state, inputs) {
-      state.inputs = Object.assign({}, ...inputs.map(t => ({[t['id']]: t})))
+      state.inputs = Object.assign(state.inputs, ...inputs.map(t => ({[t['id']]: t})))
     },
     removeTask (state, task) {
       state.tasks = _.omit(state.tasks, [task.id])
@@ -43,8 +39,13 @@ export default {
     async addTask ({ commit, state }) {
       const executor = state.selectedExecutor
       try {
-        const task = await api.post('/tasks', { jobID: 1, executor })
-        commit('addTask', task)
+        const response = await api.post('/tasks', { jobID: 1, executor })
+
+        const inputs = response.inputs
+        const task = { ...response, inputs: response.inputs.map(i => i.id) }
+
+        commit('setTasks', [task])
+        commit('setInputs', inputs)
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }

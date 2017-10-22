@@ -17,3 +17,11 @@ type Input struct {
 func (s *Service) InputAllByJobID(id int) ([]Input, error) {
 	return s.db.InputAllByJobID(id)
 }
+
+func (s *Service) InputCreate(input *Input) error {
+	return s.db.InputCreate(input)
+}
+
+func (s *Service) InputGetOne(id int, input *Input) error {
+	return s.db.InputGetOne(id, input)
+}
