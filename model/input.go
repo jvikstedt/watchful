@@ -13,15 +13,3 @@ type Input struct {
 	UpdatedAt time.Time  `json:"updatedAt" db:"updated_at"`
 	DeletedAt *time.Time `json:"deletedAt" db:"deleted_at"`
 }
-
-func (s *Service) InputAllByJobID(id int) ([]Input, error) {
-	return s.db.InputAllByJobID(id)
-}
-
-func (s *Service) InputCreate(input *Input) error {
-	return s.db.InputCreate(input)
-}
-
-func (s *Service) InputGetOne(id int, input *Input) error {
-	return s.db.InputGetOne(id, input)
-}

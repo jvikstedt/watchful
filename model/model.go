@@ -18,7 +18,7 @@ type db interface {
 }
 
 type Service struct {
-	db db
+	db
 }
 
 func New(db db) *Service {
