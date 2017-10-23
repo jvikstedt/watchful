@@ -3,19 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi"
 	"github.com/jvikstedt/watchful/model"
 )
 
 func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "inputID")
-	if idStr == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-	inputID, err := strconv.Atoi(idStr)
+	inputID, err := h.getURLParamInt(r, "inputID")
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}

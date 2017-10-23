@@ -3,9 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi"
 	"github.com/jvikstedt/watchful/model"
 )
 
@@ -26,12 +24,7 @@ func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "jobID")
-	if idStr == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-	jobID, err := strconv.Atoi(idStr)
+	jobID, err := h.getURLParamInt(r, "jobID")
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}
@@ -45,12 +38,7 @@ func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "jobID")
-	if idStr == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-	jobID, err := strconv.Atoi(idStr)
+	jobID, err := h.getURLParamInt(r, "jobID")
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}

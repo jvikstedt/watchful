@@ -3,19 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi"
 	"github.com/jvikstedt/watchful/model"
 )
 
 func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "jobID")
-	if idStr == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-	jobID, err := strconv.Atoi(idStr)
+	jobID, err := h.getURLParamInt(r, "jobID")
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}
@@ -71,12 +64,7 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "taskID")
-	if idStr == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-	taskID, err := strconv.Atoi(idStr)
+	taskID, err := h.getURLParamInt(r, "taskID")
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}
@@ -99,12 +87,7 @@ func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "taskID")
-	if idStr == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-	taskID, err := strconv.Atoi(idStr)
+	taskID, err := h.getURLParamInt(r, "taskID")
 	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
 		return
 	}

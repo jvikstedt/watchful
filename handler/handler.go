@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -73,4 +75,12 @@ func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool
 		return true
 	}
 	return false
+}
+
+func (h handler) getURLParamInt(r *http.Request, key string) (int, error) {
+	idStr := chi.URLParam(r, key)
+	if idStr == "" {
+		return 0, fmt.Errorf("URL param %s was empty", key)
+	}
+	return strconv.Atoi(idStr)
 }
