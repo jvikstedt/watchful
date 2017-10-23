@@ -22,6 +22,9 @@
             <i class="checkmark icon" />
           </button>
         </div>
+        <div v-for="(output, _) in getExecutorByID(task.executor).output">
+          {{ output.name }}
+        </div>
       </div>
     </div>
   </div>
@@ -45,6 +48,9 @@ export default {
     ]),
     getInputByID (id) {
       return this.$store.state.job.inputs[id]
+    },
+    getExecutorByID (id) {
+      return this.$store.state.executors[id]
     }
   },
 
