@@ -5,6 +5,10 @@
       <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
     </select>
     <button class="ui button" @click="addTask">Add task</button>
+    <div class="ui toggle checkbox">
+      <input type="checkbox" name="public" :checked="job.active" @change="updateActive($event.target.checked)">
+      <label>On / Off</label>
+    </div>
 
     <div class="ui raised segments">
       <div class="ui segment" v-for="(task, _) in orderedTasks">
@@ -36,7 +40,8 @@ export default {
     ...mapActions('job', [
       'addTask',
       'removeTask',
-      'saveInput'
+      'saveInput',
+      'updateActive'
     ]),
     getInputByID (id) {
       return this.$store.state.job.inputs[id]
@@ -50,11 +55,15 @@ export default {
     ]),
     ...mapGetters('job', [
       'orderedTasks'
-    ])
+    ]),
+    job () {
+      return this.$store.state.job.job
+    }
   },
 
   created () {
     this.$store.dispatch('getExecutors')
+    this.$store.dispatch('job/getJob', this.$route.params.id)
     this.$store.dispatch('job/getTasks', this.$route.params.id)
   }
 }

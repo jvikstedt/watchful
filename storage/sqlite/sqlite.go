@@ -10,6 +10,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS jobs (
 	id integer PRIMARY KEY,
 	name text,
+	active integer,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp
 );

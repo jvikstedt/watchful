@@ -34,6 +34,8 @@ func New(logger *log.Logger, model *model.Service, manager *manager.Service) htt
 			r.Post("/", h.jobCreate)
 			r.Route("/{jobID}", func(r chi.Router) {
 				r.Get("/tasks", h.taskAll)
+				r.Get("/", h.jobGetOne)
+				r.Put("/", h.jobUpdate)
 			})
 		})
 

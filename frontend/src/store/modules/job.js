@@ -8,7 +8,8 @@ export default {
     selectedExecutor: '',
     tasksOrder: [],
     tasks: {},
-    inputs: {}
+    inputs: {},
+    job: {}
   },
   getters: {
     orderedTasks (state) {
@@ -19,6 +20,9 @@ export default {
     setTasks (state, tasks) {
       state.tasks = Object.assign(state.tasks, ...tasks.map(t => ({[t['id']]: t})))
       state.tasksOrder = Object.keys(state.tasks).map(k => state.tasks[k].id)
+    },
+    setJob (state, job) {
+      state.job = job
     },
     setInputs (state, inputs) {
       state.inputs = Object.assign(state.inputs, ...inputs.map(t => ({[t['id']]: t})))
@@ -58,6 +62,14 @@ export default {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
     },
+    async updateActive ({ commit, state }, active) {
+      try {
+        const job = await api.put(`/jobs/${state.job.id}`, { active })
+        commit('setJob', job)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
     async removeTask ({ commit, state }, taskID) {
       try {
         const task = await api.delete(`/tasks/${taskID}`)
@@ -75,6 +87,15 @@ export default {
 
         commit('setTasks', tasks)
         commit('setInputs', inputs)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async getJob ({ commit, state }, jobID) {
+      try {
+        const job = await api.get(`/jobs/${jobID}`)
+
+        commit('setJob', job)
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }

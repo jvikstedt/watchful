@@ -5,6 +5,7 @@ type db interface {
 	EnsureTables() error
 
 	JobCreate(*Job) error
+	JobUpdate(*Job) error
 	JobGetOne(int, *Job) error
 
 	TaskCreate(*Task) error
