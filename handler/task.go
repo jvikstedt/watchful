@@ -9,11 +9,6 @@ import (
 	"github.com/jvikstedt/watchful/model"
 )
 
-type taskResponse struct {
-	model.Task
-	Inputs []model.Input `json:"inputs"`
-}
-
 func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "jobID")
 	if idStr == "" {
@@ -35,22 +30,15 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses := []taskResponse{}
 	for _, task := range tasks {
-		tr := taskResponse{
-			Task:   task,
-			Inputs: []model.Input{},
-		}
-
 		for _, input := range inputs {
 			if input.TaskID == task.ID {
-				tr.Inputs = append(tr.Inputs, input)
+				task.Inputs = append(task.Inputs, input)
 			}
 		}
-		responses = append(responses, tr)
 	}
 
-	json.NewEncoder(w).Encode(responses)
+	json.NewEncoder(w).Encode(tasks)
 }
 
 func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
@@ -66,10 +54,6 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := taskResponse{
-		Task:   task,
-		Inputs: []model.Input{},
-	}
 	executor := h.manager.Executors()[task.Executor]
 	for _, i := range executor.Instruction().Input {
 		input := model.Input{
@@ -80,10 +64,10 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		if h.checkErr(h.model.InputCreate(&input), w, http.StatusUnprocessableEntity) {
 			return
 		}
-		response.Inputs = append(response.Inputs, input)
+		task.Inputs = append(task.Inputs, &input)
 	}
 
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(task)
 }
 
 func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {

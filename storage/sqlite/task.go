@@ -27,8 +27,8 @@ func (s *sqlite) TaskDelete(task *model.Task) error {
 	return s.TaskGetOne(task.ID, task)
 }
 
-func (s *sqlite) TaskAllByJobID(jobID int) ([]model.Task, error) {
-	tasks := []model.Task{}
+func (s *sqlite) TaskAllByJobID(jobID int) ([]*model.Task, error) {
+	tasks := []*model.Task{}
 	err := s.db.Select(&tasks, "SELECT * FROM tasks WHERE job_id = ? AND deleted_at IS NULL", jobID)
 	return tasks, err
 }
