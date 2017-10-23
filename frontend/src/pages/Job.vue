@@ -14,6 +14,9 @@
         <div v-for="(inputID, _) in task.inputs">
           <label v-text="getInputByID(inputID).name" />
           <input :value="getInputByID(inputID).value" @input="setInputValue({inputID: inputID, value: $event.target.value})" />
+          <button class="mini green ui icon button" :disabled="!getInputByID(inputID).changed" @click="saveInput(inputID)">
+            <i class="checkmark icon" />
+          </button>
         </div>
       </div>
     </div>
@@ -32,7 +35,8 @@ export default {
     ]),
     ...mapActions('job', [
       'addTask',
-      'removeTask'
+      'removeTask',
+      'saveInput'
     ]),
     getInputByID (id) {
       return this.$store.state.job.inputs[id]

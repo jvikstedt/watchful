@@ -70,6 +70,34 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
+func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "taskID")
+	if idStr == "" {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
+	}
+	taskID, err := strconv.Atoi(idStr)
+	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
+		return
+	}
+
+	task := model.Task{}
+	if h.checkErr(h.model.TaskGetOne(taskID, &task), w, http.StatusNotFound) {
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&task); h.checkErr(err, w, http.StatusUnprocessableEntity) {
+		return
+	}
+
+	if h.checkErr(h.model.TaskUpdate(&task), w, http.StatusUnprocessableEntity) {
+		return
+	}
+
+	json.NewEncoder(w).Encode(task)
+}
+
 func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "taskID")
 	if idStr == "" {

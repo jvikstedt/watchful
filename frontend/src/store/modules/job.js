@@ -28,7 +28,15 @@ export default {
       state.tasksOrder = state.tasksOrder.filter(element => element !== task.id)
     },
     setInputValue (state, payload) {
-      const input = { ...state.inputs[payload.inputID], value: payload.value }
+      const input = { ...state.inputs[payload.inputID] }
+      if (!input.changed) {
+        input.changed = true
+        input.oldValue = input.value
+      }
+      input.value = payload.value
+      if (input.value === input.oldValue) {
+        input.changed = false
+      }
       state.inputs = { ...state.inputs, [payload.inputID]: input }
     },
     setSelectedExecutor (state, executor) {
@@ -67,6 +75,14 @@ export default {
 
         commit('setTasks', tasks)
         commit('setInputs', inputs)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async saveInput ({ commit, state }, inputID) {
+      try {
+        const response = await api.put(`/inputs/${inputID}`, state.inputs[inputID])
+        commit('setInputs', [response])
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }

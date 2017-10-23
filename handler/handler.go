@@ -41,6 +41,13 @@ func New(logger *log.Logger, model *model.Service, manager *manager.Service) htt
 			r.Post("/", h.taskCreate)
 			r.Route("/{taskID}", func(r chi.Router) {
 				r.Delete("/", h.taskDelete)
+				r.Put("/", h.taskUpdate)
+			})
+		})
+
+		r.Route("/inputs", func(r chi.Router) {
+			r.Route("/{inputID}", func(r chi.Router) {
+				r.Put("/", h.inputUpdate)
 			})
 		})
 

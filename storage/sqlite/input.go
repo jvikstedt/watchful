@@ -24,3 +24,12 @@ func (s *sqlite) InputCreate(input *model.Input) error {
 
 	return s.InputGetOne(int(id), input)
 }
+
+func (s *sqlite) InputUpdate(input *model.Input) error {
+	_, err := s.db.Exec(`UPDATE inputs SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, input.Value, input.ID)
+	if err != nil {
+		return err
+	}
+
+	return s.InputGetOne(input.ID, input)
+}
