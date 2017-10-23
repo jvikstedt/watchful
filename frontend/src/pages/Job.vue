@@ -12,8 +12,8 @@
         {{ task.executor }}
         <i class="close icon" @click="removeTask(task.id)"></i>
         <div v-for="(inputID, _) in task.inputs">
-          <label v-text="getInputByID(inputID).name" />
-          <input :value="getInputByID(inputID).value" @input="setInputValue({inputID: inputID, value: $event.target.value})" />
+          <label :for="'value' + inputID" v-text="getInputByID(inputID).name" />
+          <input :id="'value' + inputID" :value="getInputByID(inputID).value" @input="setInputValue({inputID: inputID, value: $event.target.value})" />
           <button class="mini green ui icon button" :disabled="!getInputByID(inputID).changed" @click="saveInput(inputID)">
             <i class="checkmark icon" />
           </button>
