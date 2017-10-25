@@ -51,6 +51,7 @@ func main() {
 		}
 	}()
 
+	logger.Printf("Server starting on :%s\n", port)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		logger.Printf("%v", err)
 	} else {

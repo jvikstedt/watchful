@@ -59,3 +59,19 @@ func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(job)
 }
+
+func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) {
+	jobID, err := h.getURLParamInt(r, "jobID")
+	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
+		return
+	}
+
+	job := model.Job{}
+	if h.checkErr(h.model.JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
+		return
+	}
+
+	id := h.manager.AddScheduledJob(&job, true)
+
+	json.NewEncoder(w).Encode(id)
+}

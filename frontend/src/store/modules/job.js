@@ -9,7 +9,12 @@ export default {
     tasksOrder: [],
     tasks: {},
     inputs: {},
-    job: {}
+    job: {},
+    test: {
+      status: 'none',
+      id: '',
+      startedAt: null
+    }
   },
   getters: {
     orderedTasks (state) {
@@ -45,6 +50,9 @@ export default {
     },
     setSelectedExecutor (state, executor) {
       state.selectedExecutor = executor
+    },
+    setTest (state, payload) {
+      state.test = payload
     }
   },
   actions: {
@@ -107,6 +115,26 @@ export default {
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
+    },
+    async initiateTestRun ({ dispatch, commit, state }) {
+      try {
+        const response = await api.post(`/jobs/${state.job.id}/test_run`, {})
+        commit('setTest', { status: 'waiting', id: response, startedAt: Date.now() })
+        dispatch('pollTest')
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async pollTest ({ dispatch, commit, state }) {
+      try {
+        const response = await api.get(`/results/${state.test.id}`)
+        console.log(response)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+      // setTimeout(function () {
+      //   dispatch('pollTest')
+      // }, 2000)
     }
   }
 }

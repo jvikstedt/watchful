@@ -38,6 +38,7 @@ func New(logger *log.Logger, model *model.Service, manager *manager.Service) htt
 				r.Get("/tasks", h.taskAll)
 				r.Get("/", h.jobGetOne)
 				r.Put("/", h.jobUpdate)
+				r.Post("/test_run", h.jobTestRun)
 			})
 		})
 

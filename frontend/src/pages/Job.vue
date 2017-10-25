@@ -9,6 +9,7 @@
       <input type="checkbox" name="public" :checked="job.active" @change="updateActive($event.target.checked)">
       <label>On / Off</label>
     </div>
+    <button class="ui button" @click="initiateTestRun">Test</button>
 
     <div class="ui raised segments">
       <div class="ui segment" v-for="(task, _) in orderedTasks">
@@ -44,7 +45,8 @@ export default {
       'addTask',
       'removeTask',
       'saveInput',
-      'updateActive'
+      'updateActive',
+      'initiateTestRun'
     ]),
     getInputByID (id) {
       return this.$store.state.job.inputs[id]

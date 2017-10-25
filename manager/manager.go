@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jvikstedt/watchful/model"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Executor interface {
@@ -16,19 +17,27 @@ type Executor interface {
 type Handler interface {
 }
 
+type scheduledJob struct {
+	id        string
+	job       *model.Job
+	isTestRun bool
+}
+
 type Service struct {
-	log       *log.Logger
-	model     *model.Service
-	executors map[string]Executor
-	close     chan bool
+	log            *log.Logger
+	model          *model.Service
+	executors      map[string]Executor
+	close          chan bool
+	scheduledJobCh chan scheduledJob
 }
 
 func NewService(log *log.Logger, model *model.Service) *Service {
 	return &Service{
-		log:       log,
-		model:     model,
-		executors: make(map[string]Executor),
-		close:     make(chan bool),
+		log:            log,
+		model:          model,
+		executors:      make(map[string]Executor),
+		close:          make(chan bool),
+		scheduledJobCh: make(chan scheduledJob, 10),
 	}
 }
 
@@ -43,6 +52,16 @@ func (s *Service) Executors() map[string]Executor {
 func (s *Service) Shutdown() error {
 	s.close <- true
 	return nil
+}
+
+func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
+	u1 := uuid.NewV1()
+	s.scheduledJobCh <- scheduledJob{
+		id:        u1.String(),
+		job:       job,
+		isTestRun: isTestRun,
+	}
+	return u1.String()
 }
 
 func (s *Service) Run() error {
