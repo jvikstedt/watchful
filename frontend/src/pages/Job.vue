@@ -2,7 +2,7 @@
   <div>
     <select :value="selectedExecutor" @input="setSelectedExecutor($event.target.value)">
       <option value="" selected disabled hidden>-</option>
-      <option v-for="(executor, index) in executors">{{ executor.identifier }}</option>
+      <option v-for="executor in executors">{{ executor.identifier }}</option>
     </select>
     <button class="ui button" @click="addTask">Add task</button>
     <div class="ui toggle checkbox">
@@ -12,18 +12,18 @@
     <button class="ui button" @click="initiateTestRun">Test</button>
 
     <div class="ui raised segments">
-      <div class="ui segment" v-for="(task, _) in orderedTasks">
+      <div class="ui segment" v-for="task in orderedTasks">
         {{ task.id }}
         {{ task.executor }}
         <i class="close icon" @click="removeTask(task.id)"></i>
-        <div v-for="(inputID, _) in task.inputs">
+        <div v-for="inputID in task.inputs">
           <label :for="'value' + inputID" v-text="getInputByID(inputID).name" />
           <input :id="'value' + inputID" :value="getInputByID(inputID).value" @input="setInputValue({inputID: inputID, value: $event.target.value})" />
           <button class="mini green ui icon button" :disabled="!getInputByID(inputID).changed" @click="saveInput(inputID)">
             <i class="checkmark icon" />
           </button>
         </div>
-        <div v-for="(output, _) in getExecutorByID(task.executor).output">
+        <div v-for="output in getExecutorByID(task.executor).output">
           {{ output.name }}
         </div>
       </div>
