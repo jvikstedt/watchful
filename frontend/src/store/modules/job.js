@@ -1,52 +1,27 @@
-import _ from 'lodash'
+import {
+  JOB_FETCH_SUCCESS,
+  TASK_FETCH_BY_JOB_SUCCESS,
+  TASK_CREATE_SUCCESS,
+  TASK_DELETE_SUCCESS,
+  INPUT_UPDATE_SUCCESS,
+  INPUT_SET_VALUE
+} from '@/store/types'
 
 import api from '@/Api'
 
 export default {
-  namespaced: true,
   state: {
     selectedExecutor: '',
-    tasksOrder: [],
-    tasks: {},
-    inputs: {},
-    job: {},
+    jobs: {},
     test: {
       status: 'none',
       id: '',
       startedAt: null
     }
   },
-  getters: {
-    orderedTasks (state) {
-      return state.tasksOrder.map(id => state.tasks[id])
-    }
-  },
   mutations: {
-    setTasks (state, tasks) {
-      state.tasks = Object.assign(state.tasks, ...tasks.map(t => ({[t['id']]: t})))
-      state.tasksOrder = Object.keys(state.tasks).map(k => state.tasks[k].id)
-    },
-    setJob (state, job) {
-      state.job = job
-    },
-    setInputs (state, inputs) {
-      state.inputs = Object.assign(state.inputs, ...inputs.map(t => ({[t['id']]: t})))
-    },
-    removeTask (state, task) {
-      state.tasks = _.omit(state.tasks, [task.id])
-      state.tasksOrder = state.tasksOrder.filter(element => element !== task.id)
-    },
-    setInputValue (state, payload) {
-      const input = { ...state.inputs[payload.inputID] }
-      if (!input.changed) {
-        input.changed = true
-        input.oldValue = input.value
-      }
-      input.value = payload.value
-      if (input.value === input.oldValue) {
-        input.changed = false
-      }
-      state.inputs = { ...state.inputs, [payload.inputID]: input }
+    [JOB_FETCH_SUCCESS] (state, job) {
+      state.job = { ...state.jobs, [job.id]: job }
     },
     setSelectedExecutor (state, executor) {
       state.selectedExecutor = executor
@@ -56,20 +31,6 @@ export default {
     }
   },
   actions: {
-    async addTask ({ commit, state }) {
-      const executor = state.selectedExecutor
-      try {
-        const response = await api.post('/tasks', { jobID: 1, executor })
-
-        const inputs = response.inputs
-        const task = { ...response, inputs: response.inputs.map(i => i.id) }
-
-        commit('setTasks', [task])
-        commit('setInputs', inputs)
-      } catch (e) {
-        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
-      }
-    },
     async updateActive ({ commit, state }, active) {
       try {
         const job = await api.put(`/jobs/${state.job.id}`, { active })
@@ -78,43 +39,50 @@ export default {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
     },
-    async removeTask ({ commit, state }, taskID) {
-      try {
-        const task = await api.delete(`/tasks/${taskID}`)
-        commit('removeTask', task)
-      } catch (e) {
-        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
-      }
-    },
-    async getTasks ({ commit, state }, jobID) {
-      try {
-        const response = await api.get(`/jobs/${jobID}/tasks`)
-
-        const inputs = [].concat.apply([], response.map(t => t.inputs))
-        const tasks = response.map(r => ({ ...r, inputs: r.inputs.map(i => i.id) }))
-
-        commit('setTasks', tasks)
-        commit('setInputs', inputs)
-      } catch (e) {
-        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
-      }
-    },
-    async getJob ({ commit, state }, jobID) {
+    async jobFetch ({ commit, state }, jobID) {
       try {
         const job = await api.get(`/jobs/${jobID}`)
 
-        commit('setJob', job)
+        commit(JOB_FETCH_SUCCESS, job)
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
     },
-    async saveInput ({ commit, state }, inputID) {
+    async taskFetchByJob ({ commit, state }, jobID) {
       try {
-        const response = await api.put(`/inputs/${inputID}`, state.inputs[inputID])
-        commit('setInputs', [response])
+        const response = await api.get(`/jobs/${jobID}/tasks`)
+        commit(TASK_FETCH_BY_JOB_SUCCESS, response)
       } catch (e) {
         commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
       }
+    },
+    async taskCreate ({ commit, state }) {
+      const executor = state.selectedExecutor
+      try {
+        const task = await api.post('/tasks', { jobID: 1, executor })
+        commit(TASK_CREATE_SUCCESS, task)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async taskDelete ({ commit, state }, taskID) {
+      try {
+        const task = await api.delete(`/tasks/${taskID}`)
+        commit(TASK_DELETE_SUCCESS, task)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async inputUpdate ({ commit, state, rootState }, inputID) {
+      try {
+        const response = await api.put(`/inputs/${inputID}`, rootState.input.all[inputID])
+        commit(INPUT_UPDATE_SUCCESS, response)
+      } catch (e) {
+        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() }, { root: true })
+      }
+    },
+    async inputSetValue ({ commit, state }, inputID) {
+      commit(INPUT_SET_VALUE, inputID)
     },
     async initiateTestRun ({ dispatch, commit, state }) {
       try {

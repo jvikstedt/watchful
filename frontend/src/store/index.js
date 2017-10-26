@@ -4,12 +4,16 @@ import Vuex from 'vuex'
 import api from '@/Api'
 
 import job from './modules/job'
+import input from './modules/input'
+import task from './modules/task'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
-    'job': job
+    'job': job,
+    'input': input,
+    'task': task
   },
   state: {
     executors: {},

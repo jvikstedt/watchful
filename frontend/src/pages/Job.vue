@@ -4,7 +4,7 @@
       <option value="" selected disabled hidden>-</option>
       <option v-for="executor in executors">{{ executor.identifier }}</option>
     </select>
-    <button class="ui button" @click="addTask">Add task</button>
+    <button class="ui button" @click="taskCreate">Add task</button>
     <div class="ui toggle checkbox">
       <input type="checkbox" name="public" :checked="job.active" @change="updateActive($event.target.checked)">
       <label>On / Off</label>
@@ -18,8 +18,8 @@
         <i class="close icon" @click="removeTask(task.id)"></i>
         <div v-for="inputID in task.inputs">
           <label :for="'value' + inputID" v-text="getInputByID(inputID).name" />
-          <input :id="'value' + inputID" :value="getInputByID(inputID).value" @input="setInputValue({inputID: inputID, value: $event.target.value})" />
-          <button class="mini green ui icon button" :disabled="!getInputByID(inputID).changed" @click="saveInput(inputID)">
+          <input :id="'value' + inputID" :value="getInputByID(inputID).value" @input="inputSetValue({inputID: inputID, value: $event.target.value})" />
+          <button class="mini green ui icon button" :disabled="!getInputByID(inputID).changed" @click="inputUpdate(inputID)">
             <i class="checkmark icon" />
           </button>
         </div>
@@ -36,20 +36,19 @@ import { mapState, mapMutations, mapActions, mapGetters } from 'vuex'
 
 export default {
   methods: {
-    ...mapMutations('job', [
-      'setSelectedExecutor',
-      'updateInputValue',
-      'setInputValue'
+    ...mapMutations([
+      'setSelectedExecutor'
     ]),
-    ...mapActions('job', [
-      'addTask',
+    ...mapActions([
+      'taskCreate',
       'removeTask',
-      'saveInput',
+      'inputUpdate',
       'updateActive',
-      'initiateTestRun'
+      'initiateTestRun',
+      'inputSetValue'
     ]),
     getInputByID (id) {
-      return this.$store.state.job.inputs[id]
+      return this.$store.state.input.all[id]
     },
     getExecutorByID (id) {
       return this.$store.state.executors[id]
@@ -61,18 +60,18 @@ export default {
       'executors',
       'selectedExecutor'
     ]),
-    ...mapGetters('job', [
+    ...mapGetters([
       'orderedTasks'
     ]),
     job () {
-      return this.$store.state.job.job
+      return this.$store.state.job.jobs[this.$route.params.id] || {}
     }
   },
 
   created () {
     this.$store.dispatch('getExecutors')
-    this.$store.dispatch('job/getJob', this.$route.params.id)
-    this.$store.dispatch('job/getTasks', this.$route.params.id)
+    this.$store.dispatch('jobFetch', this.$route.params.id)
+    this.$store.dispatch('taskFetchByJob', this.$route.params.id)
   }
 }
 </script>
