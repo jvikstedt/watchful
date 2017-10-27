@@ -22,13 +22,13 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	storage, err := sqlite.New("./dev.db")
+	storage, err := sqlite.New(logger, "./dev.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer storage.Close()
 
-	model := model.New(storage)
+	model := model.New(logger, storage)
 
 	manager := manager.NewService(logger, model)
 	manager.RegisterExecutor(executor.Equal{})
