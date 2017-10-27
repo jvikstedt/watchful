@@ -20,12 +20,17 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import TaskCreator from '@/components/TaskCreator'
 import TaskInput from '@/components/TaskInput'
 import TaskOutput from '@/components/TaskOutput'
 
 export default {
+  created () {
+    this.$store.dispatch('getExecutors')
+    this.$store.dispatch('jobFetch', this.jobID)
+    this.$store.dispatch('taskFetchByJob', this.jobID)
+  },
   methods: {
     ...mapActions([
       'taskCreate',
@@ -41,14 +46,13 @@ export default {
       return this.$store.state.executors[id]
     }
   },
-
   computed: {
-    ...mapState([
-      'executors'
-    ]),
-    ...mapGetters([
-      'orderedTasks'
-    ]),
+    executors () {
+      return this.$store.state.executors
+    },
+    orderedTasks () {
+      return this.$store.getters.orderedTasks
+    },
     job () {
       return this.$store.state.job.all[this.jobID] || {}
     },
@@ -60,19 +64,10 @@ export default {
       return [
         'ui',
         'button',
-        {
-          loading: status === 'waiting'
-        }
+        { loading: status === 'waiting' }
       ]
     }
   },
-
-  created () {
-    this.$store.dispatch('getExecutors')
-    this.$store.dispatch('jobFetch', this.jobID)
-    this.$store.dispatch('taskFetchByJob', this.jobID)
-  },
-
   components: {
     TaskCreator,
     TaskInput,
