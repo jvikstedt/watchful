@@ -13,9 +13,7 @@
         {{ task.executor }}
         <i class="close icon" @click="taskDelete(task.id)"></i>
         <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" />
-        <div v-for="output in getExecutorByID(task.executor).output">
-          {{ output.name }}
-        </div>
+        <task-output v-for="output in getExecutorByID(task.executor).output" :key="output.name" :output="output" />
       </div>
     </div>
   </div>
@@ -25,6 +23,7 @@
 import { mapState, mapActions, mapGetters } from 'vuex'
 import TaskCreator from '@/components/TaskCreator'
 import TaskInput from '@/components/TaskInput'
+import TaskOutput from '@/components/TaskOutput'
 
 export default {
   methods: {
@@ -76,7 +75,8 @@ export default {
 
   components: {
     TaskCreator,
-    TaskInput
+    TaskInput,
+    TaskOutput
   }
 }
 </script>
