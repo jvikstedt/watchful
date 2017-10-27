@@ -16,7 +16,6 @@ import api from '@/Api'
 
 export default {
   state: {
-    selectedExecutor: '',
     all: {},
     test: {
       status: 'none',
@@ -41,9 +40,6 @@ export default {
     [TEST_POLL_ERROR] (state, error) {
       const timeout = state.test.tries >= 10
       state.test = { ...state.test, tries: state.test.tries + 1, status: timeout ? 'timeout' : state.test.status }
-    },
-    setSelectedExecutor (state, executor) {
-      state.selectedExecutor = executor
     }
   },
   actions: {
@@ -72,8 +68,7 @@ export default {
         commit(ERROR_TRIGGERED, e)
       }
     },
-    async taskCreate ({ commit, state }) {
-      const executor = state.selectedExecutor
+    async taskCreate ({ commit, state }, executor) {
       try {
         const task = await api.post('/tasks', { jobID: 1, executor })
         commit(TASK_CREATE_SUCCESS, task)

@@ -1,10 +1,6 @@
 <template>
   <div>
-    <select :value="selectedExecutor" @input="setSelectedExecutor($event.target.value)">
-      <option value="" selected disabled hidden>-</option>
-      <option v-for="executor in executors">{{ executor.identifier }}</option>
-    </select>
-    <button class="ui button" @click="taskCreate">Add task</button>
+    <task-creator :executors="executors" :onTaskAdd="taskCreate" />
     <div class="ui toggle checkbox">
       <input type="checkbox" name="public" :checked="job.active" @change="updateActive({jobID: jobID, active: $event.target.checked})">
       <label>On / Off</label>
@@ -32,13 +28,11 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions, mapGetters } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
+import TaskCreator from '@/components/TaskCreator'
 
 export default {
   methods: {
-    ...mapMutations([
-      'setSelectedExecutor'
-    ]),
     ...mapActions([
       'taskCreate',
       'taskDelete',
@@ -57,8 +51,7 @@ export default {
 
   computed: {
     ...mapState([
-      'executors',
-      'selectedExecutor'
+      'executors'
     ]),
     ...mapGetters([
       'orderedTasks'
@@ -85,6 +78,10 @@ export default {
     this.$store.dispatch('getExecutors')
     this.$store.dispatch('jobFetch', this.jobID)
     this.$store.dispatch('taskFetchByJob', this.jobID)
+  },
+
+  components: {
+    TaskCreator
   }
 }
 </script>
