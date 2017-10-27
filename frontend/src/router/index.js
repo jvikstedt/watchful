@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/pages/Home'
-import Job from '@/pages/Job'
+import JobEdit from '@/pages/JobEdit'
 
 Vue.use(Router)
 
@@ -16,7 +16,7 @@ export default new Router({
     {
       path: '/jobs/:id',
       name: 'Job',
-      component: Job
+      component: JobEdit
     }
   ]
 })
