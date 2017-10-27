@@ -1,9 +1,8 @@
 package model
 
-type db interface {
-	Close() error
-	EnsureTables() error
+import "log"
 
+type Querier interface {
 	JobCreate(*Job) error
 	JobUpdate(*Job) error
 	JobGetOne(int, *Job) error
@@ -20,12 +19,21 @@ type db interface {
 	InputGetOne(int, *Input) error
 }
 
+type db interface {
+	Querier
+	Close() error
+	EnsureTables() error
+	BeginTx(func(Querier) error) error
+}
+
 type Service struct {
+	log *log.Logger
 	db
 }
 
-func New(db db) *Service {
+func New(log *log.Logger, db db) *Service {
 	return &Service{
-		db: db,
+		log: log,
+		db:  db,
 	}
 }

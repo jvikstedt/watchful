@@ -43,21 +43,14 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.model.TaskCreate(&task), w, http.StatusUnprocessableEntity) {
-		return
-	}
-
 	executor := h.manager.Executors()[task.Executor]
 	for _, i := range executor.Instruction().Input {
-		input := model.Input{
-			TaskID: task.ID,
-			Name:   i.Name,
-			Value:  "",
-		}
-		if h.checkErr(h.model.InputCreate(&input), w, http.StatusUnprocessableEntity) {
-			return
-		}
+		input := model.Input{Name: i.Name}
 		task.Inputs = append(task.Inputs, &input)
+	}
+
+	if h.checkErr(h.model.TaskCreate(&task), w, http.StatusUnprocessableEntity) {
+		return
 	}
 
 	json.NewEncoder(w).Encode(task)
