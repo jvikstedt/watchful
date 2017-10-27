@@ -1,11 +1,17 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import api from '@/Api'
-
 import job from './modules/job'
 import input from './modules/input'
 import task from './modules/task'
+
+import api from '@/Api'
+
+import {
+  ERROR_TRIGGERED,
+  CLEAR_FLASH,
+  EXECUTOR_FETCH_ALL_SUCCESS
+} from '@/store/types'
 
 Vue.use(Vuex)
 
@@ -23,20 +29,20 @@ export default new Vuex.Store({
     async getExecutors ({ commit }) {
       try {
         const executors = await api.get('/executors')
-        commit('setExecutors', executors)
+        commit(EXECUTOR_FETCH_ALL_SUCCESS, executors)
       } catch (e) {
-        commit('setFlash', { status: 'error', header: 'Something went wrong!', body: e.toString() })
+        commit(ERROR_TRIGGERED, e)
       }
     }
   },
   mutations: {
-    setExecutors (state, executors) {
+    [EXECUTOR_FETCH_ALL_SUCCESS] (state, executors) {
       state.executors = Object.assign({}, ...executors.map(e => ({[e['identifier']]: e})))
     },
-    setFlash (state, flash) {
-      state.flash = flash
+    [ERROR_TRIGGERED] (state, error) {
+      state.flash = { status: 'error', header: 'Something went wrong!', body: error.toString() }
     },
-    clearFlash (state) {
+    [CLEAR_FLASH] (state) {
       state.flash = null
     }
   }

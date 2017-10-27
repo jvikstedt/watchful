@@ -13,6 +13,10 @@
 </template>
 
 <script>
+import {
+  CLEAR_FLASH
+} from '@/store/types'
+
 export default {
   computed: {
     flash () {
@@ -22,7 +26,7 @@ export default {
 
   methods: {
     removeFlash (event) {
-      this.$store.commit('clearFlash')
+      this.$store.commit(CLEAR_FLASH)
     }
   }
 }
