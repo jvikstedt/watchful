@@ -6,7 +6,6 @@ import {
   TASK_CREATE_SUCCESS,
   TASK_DELETE_SUCCESS,
   INPUT_UPDATE_SUCCESS,
-  INPUT_SET_VALUE,
   TEST_INITIATE_SUCCESS,
   TEST_POLL_SUCCESS,
   TEST_POLL_ERROR
@@ -84,16 +83,13 @@ export default {
         commit(ERROR_TRIGGERED, e)
       }
     },
-    async inputUpdate ({ commit, state, rootState }, inputID) {
+    async inputUpdate ({ commit, state, rootState }, { value, id }) {
       try {
-        const response = await api.put(`/inputs/${inputID}`, rootState.input.all[inputID])
+        const response = await api.put(`/inputs/${id}`, { value })
         commit(INPUT_UPDATE_SUCCESS, response)
       } catch (e) {
         commit(ERROR_TRIGGERED, e)
       }
-    },
-    async inputSetValue ({ commit, state }, inputID) {
-      commit(INPUT_SET_VALUE, inputID)
     },
     async initiateTestRun ({ dispatch, commit, state }, jobID) {
       try {

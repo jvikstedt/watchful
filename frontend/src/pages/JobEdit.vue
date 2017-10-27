@@ -12,13 +12,7 @@
         {{ task.id }}
         {{ task.executor }}
         <i class="close icon" @click="taskDelete(task.id)"></i>
-        <div v-for="inputID in task.inputs">
-          <label :for="'value' + inputID" v-text="getInputByID(inputID).name" />
-          <input :id="'value' + inputID" :value="getInputByID(inputID).value" @input="inputSetValue({inputID: inputID, value: $event.target.value})" />
-          <button class="mini green ui icon button" :disabled="!getInputByID(inputID).changed" @click="inputUpdate(inputID)">
-            <i class="checkmark icon" />
-          </button>
-        </div>
+        <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" />
         <div v-for="output in getExecutorByID(task.executor).output">
           {{ output.name }}
         </div>
@@ -30,6 +24,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex'
 import TaskCreator from '@/components/TaskCreator'
+import TaskInput from '@/components/TaskInput'
 
 export default {
   methods: {
@@ -38,11 +33,10 @@ export default {
       'taskDelete',
       'inputUpdate',
       'updateActive',
-      'initiateTestRun',
-      'inputSetValue'
+      'initiateTestRun'
     ]),
     getInputByID (id) {
-      return this.$store.state.input.all[id]
+      return this.$store.state.input.all[id] || {}
     },
     getExecutorByID (id) {
       return this.$store.state.executors[id]
@@ -81,7 +75,8 @@ export default {
   },
 
   components: {
-    TaskCreator
+    TaskCreator,
+    TaskInput
   }
 }
 </script>

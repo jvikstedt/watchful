@@ -1,7 +1,6 @@
 import {
   INPUT_UPDATE_SUCCESS,
   TASK_FETCH_BY_JOB_SUCCESS,
-  INPUT_SET_VALUE,
   TASK_CREATE_SUCCESS
 } from '@/store/types'
 
@@ -19,18 +18,6 @@ export default {
     },
     [TASK_CREATE_SUCCESS] (state, task) {
       state.all = Object.assign(state.all, ...task.inputs.map(t => ({[t['id']]: t})))
-    },
-    [INPUT_SET_VALUE] (state, payload) {
-      const input = { ...state.all[payload.inputID] }
-      if (!input.changed) {
-        input.changed = true
-        input.oldValue = input.value
-      }
-      input.value = payload.value
-      if (input.value === input.oldValue) {
-        input.changed = false
-      }
-      state.all = { ...state.all, [payload.inputID]: input }
     }
   }
 }
