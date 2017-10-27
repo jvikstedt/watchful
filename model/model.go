@@ -17,6 +17,11 @@ type Querier interface {
 	InputCreate(*Input) error
 	InputUpdate(*Input) error
 	InputGetOne(int, *Input) error
+
+	ResultCreate(*Result) error
+	ResultUpdate(*Result) error
+	ResultGetOne(int, *Result) error
+	ResultGetOneByUUID(string, *Result) error
 }
 
 type db interface {

@@ -50,6 +50,12 @@ func New(logger *log.Logger, model *model.Service, manager *manager.Service) htt
 			})
 		})
 
+		r.Route("/results", func(r chi.Router) {
+			r.Route("/{uuid}", func(r chi.Router) {
+				r.Get("/", h.resultGetOne)
+			})
+		})
+
 		r.Route("/inputs", func(r chi.Router) {
 			r.Route("/{inputID}", func(r chi.Router) {
 				r.Put("/", h.inputUpdate)

@@ -67,6 +67,18 @@ func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
 func (s *Service) Run() error {
 	for {
 		select {
+		case sj := <-s.scheduledJobCh:
+			result := model.Result{
+				UUID:    sj.id,
+				TestRun: sj.isTestRun,
+				JobID:   sj.job.ID,
+				Status:  model.ResultStatusWaiting,
+			}
+			err := s.model.ResultCreate(&result)
+			if err != nil {
+				s.log.Println(err)
+			}
+			go s.executeJob(result)
 		case <-s.close:
 			s.log.Println("manager closed")
 			return nil
@@ -74,4 +86,12 @@ func (s *Service) Run() error {
 			time.Sleep(time.Second * 2)
 		}
 	}
+}
+
+func (s *Service) executeJob(result model.Result) {
+	// Working
+	time.Sleep(time.Second * 5)
+
+	result.Status = model.ResultStatusDone
+	s.model.ResultUpdate(&result)
 }

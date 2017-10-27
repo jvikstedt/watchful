@@ -6,7 +6,10 @@ import {
   TASK_CREATE_SUCCESS,
   TASK_DELETE_SUCCESS,
   INPUT_UPDATE_SUCCESS,
-  INPUT_SET_VALUE
+  INPUT_SET_VALUE,
+  TEST_INITIATE_SUCCESS,
+  TEST_POLL_SUCCESS,
+  TEST_POLL_ERROR
 } from '@/store/types'
 
 import api from '@/Api'
@@ -18,7 +21,8 @@ export default {
     test: {
       status: 'none',
       id: '',
-      startedAt: null
+      startedAt: null,
+      tries: 0
     }
   },
   mutations: {
@@ -28,11 +32,18 @@ export default {
     [JOB_UPDATE_ACTIVE_SUCCESS] (state, job) {
       state.all = { ...state.all, [job.id]: { ...state.all[job.id], active: job.active } }
     },
+    [TEST_INITIATE_SUCCESS] (state, uuid) {
+      state.test = { status: 'waiting', id: uuid, startedAt: Date.now(), tries: 0 }
+    },
+    [TEST_POLL_SUCCESS] (state, result) {
+      state.test = { ...state.test, status: result.status }
+    },
+    [TEST_POLL_ERROR] (state, error) {
+      const timeout = state.test.tries >= 10
+      state.test = { ...state.test, tries: state.test.tries + 1, status: timeout ? 'timeout' : state.test.status }
+    },
     setSelectedExecutor (state, executor) {
       state.selectedExecutor = executor
-    },
-    setTest (state, payload) {
-      state.test = payload
     }
   },
   actions: {
@@ -91,8 +102,8 @@ export default {
     },
     async initiateTestRun ({ dispatch, commit, state }, jobID) {
       try {
-        const response = await api.post(`/jobs/${jobID}/test_run`, {})
-        commit('setTest', { status: 'waiting', id: response, startedAt: Date.now() })
+        const uuid = await api.post(`/jobs/${jobID}/test_run`, {})
+        commit(TEST_INITIATE_SUCCESS, uuid)
         dispatch('pollTest')
       } catch (e) {
         commit(ERROR_TRIGGERED, e)
@@ -101,13 +112,22 @@ export default {
     async pollTest ({ dispatch, commit, state }) {
       try {
         const response = await api.get(`/results/${state.test.id}`)
-        console.log(response)
+        commit(TEST_POLL_SUCCESS, response)
+        if (response.status !== 'done') {
+          setTimeout(function () {
+            dispatch('pollTest')
+          }, 2000)
+        }
       } catch (e) {
-        commit(ERROR_TRIGGERED, e)
+        commit(TEST_POLL_ERROR)
+        if (state.test.status === 'waiting') {
+          setTimeout(function () {
+            dispatch('pollTest')
+          }, 2000)
+        } else {
+          commit(ERROR_TRIGGERED, e)
+        }
       }
-      // setTimeout(function () {
-      //   dispatch('pollTest')
-      // }, 2000)
     }
   }
 }

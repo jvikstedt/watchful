@@ -14,7 +14,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS jobs (
 	id integer PRIMARY KEY,
 	name text,
-	active integer,
+	active integer DEFAULT 0,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp
 );
@@ -36,6 +36,16 @@ CREATE TABLE IF NOT EXISTS inputs (
 	updated_at timestamp DEFAULT current_timestamp,
 	deleted_at timestamp,
 	FOREIGN KEY(task_id) REFERENCES tasks(id)
+);
+CREATE TABLE IF NOT EXISTS results (
+	id integer PRIMARY KEY,
+	uuid text,
+	test_run integer DEFAULT 0,
+	job_id integer,
+	status text,
+	created_at timestamp,
+	updated_at timestamp DEFAULT current_timestamp,
+	FOREIGN KEY(job_id) REFERENCES jobs(id)
 );
 `
 
@@ -59,9 +69,9 @@ func New(log *log.Logger, filepath string) (*sqlite, error) {
 		q:   db,
 	}
 
-	storage.EnsureTables()
+	err = storage.EnsureTables()
 
-	return storage, nil
+	return storage, err
 }
 
 type sqlite struct {

@@ -9,7 +9,7 @@
       <input type="checkbox" name="public" :checked="job.active" @change="updateActive({jobID: jobID, active: $event.target.checked})">
       <label>On / Off</label>
     </div>
-    <button class="ui button" @click="initiateTestRun(jobID)">Test</button>
+    <button :class="testBtnClasses" @click="initiateTestRun(jobID)">Test</button>
 
     <div class="ui raised segments">
       <div class="ui segment" v-for="task in orderedTasks">
@@ -68,6 +68,16 @@ export default {
     },
     jobID () {
       return this.$route.params.id
+    },
+    testBtnClasses () {
+      const status = this.$store.state.job.test.status
+      return [
+        'ui',
+        'button',
+        {
+          loading: status === 'waiting'
+        }
+      ]
     }
   },
 
