@@ -1,10 +1,7 @@
 package sqlite
 
 import (
-	"database/sql"
-	"log"
-
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -38,15 +35,14 @@ CREATE TABLE IF NOT EXISTS inputs (
 );
 `
 
-func New(log *log.Logger, filepath string) (*sqlite, error) {
-	db, err := sql.Open("sqlite3", filepath)
+func New(filepath string) (*sqlite, error) {
+	db, err := sqlx.Open("sqlite3", filepath)
 	if err != nil {
 		return nil, err
 	}
 
 	storage := &sqlite{
-		log: log,
-		db:  db,
+		db: db,
 	}
 
 	storage.EnsureTables()
@@ -55,36 +51,14 @@ func New(log *log.Logger, filepath string) (*sqlite, error) {
 }
 
 type sqlite struct {
-	log *log.Logger
-	db  *sql.DB
+	db *sqlx.DB
 }
 
 func (s *sqlite) EnsureTables() error {
-	_, err := s.db.Exec(schema)
-	return err
+	s.db.MustExec(schema)
+	return nil
 }
 
 func (s *sqlite) Close() error {
 	return s.db.Close()
-}
-
-func (s *sqlite) Call(callback func(model.Querier) error, transaction bool) error {
-	if transaction {
-		s.log.Println("Transaction start")
-		tx, err := s.db.Begin()
-		if err != nil {
-			return err
-		}
-
-		if err = callback(tx); err != nil {
-			tx.Rollback()
-			s.log.Printf("Transaction rollback: %v", err)
-			return err
-		}
-
-		s.log.Println("Transaction commit")
-		return tx.Commit()
-	}
-
-	return callback(s.db)
 }
