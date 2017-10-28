@@ -13,22 +13,9 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := h.model.TaskAllByJobID(jobID)
+	tasks, err := h.model.TasksWithInputsByJobID(jobID)
 	if h.checkErr(err, w, http.StatusInternalServerError) {
 		return
-	}
-
-	inputs, err := h.model.InputAllByJobID(jobID)
-	if h.checkErr(err, w, http.StatusInternalServerError) {
-		return
-	}
-
-	for _, task := range tasks {
-		for _, input := range inputs {
-			if input.TaskID == task.ID {
-				task.Inputs = append(task.Inputs, input)
-			}
-		}
 	}
 
 	json.NewEncoder(w).Encode(tasks)

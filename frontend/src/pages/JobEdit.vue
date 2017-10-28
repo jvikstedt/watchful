@@ -13,7 +13,7 @@
         {{ task.executor }}
         <i class="close icon" @click="taskDelete(task.id)"></i>
         <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" />
-        <task-output v-for="output in getExecutorByID(task.executor).output" :key="output.name" :output="output" />
+        <task-output v-for="output in getExecutorByID(task.executor).output" :key="output.name" :output="output" :resultItem="resultItemByTaskID(task.id)" />
       </div>
     </div>
   </div>
@@ -44,6 +44,9 @@ export default {
     },
     getExecutorByID (id) {
       return this.$store.state.executors[id]
+    },
+    resultItemByTaskID (taskID) {
+      return this.$store.getters.resultItemsGrouped[`${this.$store.state.job.test.id}:${taskID}`] || { output: {} }
     }
   },
   computed: {
@@ -58,6 +61,10 @@ export default {
     },
     jobID () {
       return this.$route.params.id
+    },
+    result () {
+      const resultID = this.$store.state.job.test.id
+      return this.$store.state.test.results[resultID] || {}
     },
     testBtnClasses () {
       const status = this.$store.state.job.test.status

@@ -28,16 +28,16 @@ func main() {
 	}
 	defer storage.Close()
 
-	model := model.New(logger, storage)
+	modelService := model.New(logger, storage)
 
-	manager := manager.NewService(logger, model)
+	manager := manager.NewService(logger, modelService)
 	manager.RegisterExecutor(executor.Equal{})
 	manager.RegisterExecutor(executor.HTTP{})
 	manager.RegisterExecutor(executor.JSON{})
 
 	go manager.Run()
 
-	http.Handle("/", handler.New(logger, model, manager))
+	http.Handle("/", handler.New(logger, modelService, manager))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {

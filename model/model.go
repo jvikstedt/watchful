@@ -22,6 +22,11 @@ type Querier interface {
 	ResultUpdate(*Result) error
 	ResultGetOne(int, *Result) error
 	ResultGetOneByUUID(string, *Result) error
+
+	ResultItemCreate(*ResultItem) error
+	ResultItemUpdate(*ResultItem) error
+	ResultItemGetOne(int, *ResultItem) error
+	ResultItemAllByResultID(int) ([]*ResultItem, error)
 }
 
 type db interface {

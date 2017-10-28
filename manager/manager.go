@@ -1,6 +1,8 @@
 package manager
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -89,9 +91,55 @@ func (s *Service) Run() error {
 }
 
 func (s *Service) executeJob(result model.Result) {
-	// Working
-	time.Sleep(time.Second * 5)
+	job := model.Job{}
+	err := s.model.JobGetOne(result.JobID, &job)
+	if err != nil {
+		s.log.Println(err)
+		return
+	}
+	tasks, err := s.model.TasksWithInputsByJobID(result.JobID)
+	if err != nil {
+		s.log.Println(err)
+		return
+	}
+
+	for _, t := range tasks {
+		err := s.handleTask(result, t)
+		if err != nil {
+			s.log.Println(err)
+		}
+	}
 
 	result.Status = model.ResultStatusDone
 	s.model.ResultUpdate(&result)
+}
+
+func (s *Service) handleTask(result model.Result, task *model.Task) error {
+	executor, ok := s.executors[task.Executor]
+	if !ok {
+		return fmt.Errorf("Could not find executor: %s", task.Executor)
+	}
+
+	commands := map[string]interface{}{}
+	for _, i := range task.Inputs {
+		commands[i.Name] = i.Value
+	}
+
+	output, err := executor.Execute(commands)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.Marshal(output)
+	if err != nil {
+		return err
+	}
+
+	resultItem := model.ResultItem{
+		ResultID: result.ID,
+		TaskID:   task.ID,
+		Output:   string(bytes),
+	}
+
+	return s.model.ResultItemCreate(&resultItem)
 }

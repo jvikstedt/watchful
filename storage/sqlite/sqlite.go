@@ -47,6 +47,16 @@ CREATE TABLE IF NOT EXISTS results (
 	updated_at timestamp DEFAULT current_timestamp,
 	FOREIGN KEY(job_id) REFERENCES jobs(id)
 );
+CREATE TABLE IF NOT EXISTS result_items (
+	id integer PRIMARY KEY,
+	result_id integer,
+	task_id integer,
+	output text,
+	created_at timestamp,
+	updated_at timestamp DEFAULT current_timestamp,
+	FOREIGN KEY(result_id) REFERENCES results(id),
+	FOREIGN KEY(task_id) REFERENCES tasks(id)
+);
 `
 
 type query interface {

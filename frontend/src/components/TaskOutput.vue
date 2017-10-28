@@ -1,13 +1,13 @@
 <template>
   <div>
-    {{ output.name }}
+    {{ output.name }} - {{ resultItem.output[output.name] }}
   </div>
 </template>
 
 <script>
 
 export default {
-  props: ['output']
+  props: ['output', 'resultItem']
 }
 </script>
 

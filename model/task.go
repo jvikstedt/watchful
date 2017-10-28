@@ -34,3 +34,25 @@ func (s *Service) TaskCreate(task *Task) error {
 		return nil
 	})
 }
+
+func (s *Service) TasksWithInputsByJobID(jobID int) ([]*Task, error) {
+	tasks, err := s.TaskAllByJobID(jobID)
+	if err != nil {
+		return tasks, err
+	}
+
+	inputs, err := s.InputAllByJobID(jobID)
+	if err != nil {
+		return tasks, err
+	}
+
+	for _, task := range tasks {
+		for _, input := range inputs {
+			if input.TaskID == task.ID {
+				task.Inputs = append(task.Inputs, input)
+			}
+		}
+	}
+
+	return tasks, nil
+}

@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import job from './modules/job'
 import input from './modules/input'
 import task from './modules/task'
+import test from './modules/test'
 
 import api from '@/Api'
 
@@ -19,7 +20,8 @@ export default new Vuex.Store({
   modules: {
     'job': job,
     'input': input,
-    'task': task
+    'task': task,
+    'test': test
   },
   state: {
     executors: {},

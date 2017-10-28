@@ -18,7 +18,8 @@ export default {
     all: {},
     test: {
       status: 'none',
-      id: '',
+      uuid: '',
+      id: null,
       startedAt: null,
       tries: 0
     }
@@ -31,10 +32,10 @@ export default {
       state.all = { ...state.all, [job.id]: { ...state.all[job.id], active: job.active } }
     },
     [TEST_INITIATE_SUCCESS] (state, uuid) {
-      state.test = { status: 'waiting', id: uuid, startedAt: Date.now(), tries: 0 }
+      state.test = { status: 'waiting', uuid: uuid, startedAt: Date.now(), tries: 0 }
     },
     [TEST_POLL_SUCCESS] (state, result) {
-      state.test = { ...state.test, status: result.status }
+      state.test = { ...state.test, status: result.status, id: result.id }
     },
     [TEST_POLL_ERROR] (state, error) {
       const timeout = state.test.tries >= 10
@@ -102,7 +103,7 @@ export default {
     },
     async pollTest ({ dispatch, commit, state }) {
       try {
-        const response = await api.get(`/results/${state.test.id}`)
+        const response = await api.get(`/results/${state.test.uuid}`)
         commit(TEST_POLL_SUCCESS, response)
         if (response.status !== 'done') {
           setTimeout(function () {
