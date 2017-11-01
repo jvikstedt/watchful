@@ -38,7 +38,11 @@ type db interface {
 
 type Service struct {
 	log *log.Logger
-	db
+	db  db
+}
+
+func (s *Service) DB() db {
+	return s.db
 }
 
 func New(log *log.Logger, db db) *Service {

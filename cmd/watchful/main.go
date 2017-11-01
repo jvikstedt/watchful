@@ -7,11 +7,11 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/jvikstedt/watchful/builtin/executor"
-	"github.com/jvikstedt/watchful/handler"
-	"github.com/jvikstedt/watchful/manager"
-	"github.com/jvikstedt/watchful/model"
-	"github.com/jvikstedt/watchful/storage/sqlite"
+	"github.com/jvikstedt/watchful/pkg/builtin/executor"
+	"github.com/jvikstedt/watchful/pkg/exec"
+	"github.com/jvikstedt/watchful/pkg/handler"
+	"github.com/jvikstedt/watchful/pkg/model"
+	"github.com/jvikstedt/watchful/pkg/storage/sqlite"
 )
 
 func main() {
@@ -30,14 +30,14 @@ func main() {
 
 	modelService := model.New(logger, storage)
 
-	manager := manager.NewService(logger, modelService)
-	manager.RegisterExecutor(executor.Equal{})
-	manager.RegisterExecutor(executor.HTTP{})
-	manager.RegisterExecutor(executor.JSON{})
+	exec := exec.NewService(logger, modelService)
+	exec.RegisterExecutor(executor.Equal{})
+	exec.RegisterExecutor(executor.HTTP{})
+	exec.RegisterExecutor(executor.JSON{})
 
-	go manager.Run()
+	go exec.Run()
 
-	http.Handle("/", handler.New(logger, modelService, manager))
+	http.Handle("/", handler.New(logger, modelService, exec))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {
@@ -58,7 +58,7 @@ func main() {
 		logger.Println("Server closed!")
 	}
 
-	if err := manager.Shutdown(); err != nil {
-		logger.Printf("Unable to shutdown manager: %v", err)
+	if err := exec.Shutdown(); err != nil {
+		logger.Printf("Unable to shutdown exec: %v", err)
 	}
 }

@@ -1,7 +1,7 @@
 package sqlite
 
 import (
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 )
 
 func (s *sqlite) TaskCreate(task *model.Task) error {

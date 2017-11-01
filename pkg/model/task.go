@@ -15,7 +15,7 @@ type Task struct {
 }
 
 func (s *Service) TaskCreate(task *Task) error {
-	return s.BeginTx(func(q Querier) error {
+	return s.db.BeginTx(func(q Querier) error {
 		err := q.TaskCreate(task)
 		if err != nil {
 			return err
@@ -36,12 +36,12 @@ func (s *Service) TaskCreate(task *Task) error {
 }
 
 func (s *Service) TasksWithInputsByJobID(jobID int) ([]*Task, error) {
-	tasks, err := s.TaskAllByJobID(jobID)
+	tasks, err := s.db.TaskAllByJobID(jobID)
 	if err != nil {
 		return tasks, err
 	}
 
-	inputs, err := s.InputAllByJobID(jobID)
+	inputs, err := s.db.InputAllByJobID(jobID)
 	if err != nil {
 		return tasks, err
 	}

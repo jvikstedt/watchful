@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 	_ "github.com/mattn/go-sqlite3"
 )
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,11 +11,13 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/jvikstedt/watchful/manager"
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/exec"
+	"github.com/jvikstedt/watchful/pkg/model"
 )
 
-func New(logger *log.Logger, model *model.Service, manager *manager.Service) http.Handler {
+var EmptyObject = struct{}{}
+
+func New(logger *log.Logger, model *model.Service, exec *exec.Service) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -29,11 +32,11 @@ func New(logger *log.Logger, model *model.Service, manager *manager.Service) htt
 	})
 	r.Use(cors.Handler)
 
-	h := handler{logger, model, manager}
+	h := handler{logger, model, exec}
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
-			r.Post("/", h.jobCreate)
+			r.Post("/", h.jsonResponseHandler(h.jobCreate))
 			r.Route("/{jobID}", func(r chi.Router) {
 				r.Get("/tasks", h.taskAll)
 				r.Get("/", h.jobGetOne)
@@ -70,9 +73,9 @@ func New(logger *log.Logger, model *model.Service, manager *manager.Service) htt
 }
 
 type handler struct {
-	log     *log.Logger
-	model   *model.Service
-	manager *manager.Service
+	log   *log.Logger
+	model *model.Service
+	exec  *exec.Service
 }
 
 func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {
@@ -90,4 +93,19 @@ func (h handler) getURLParamInt(r *http.Request, key string) (int, error) {
 		return 0, fmt.Errorf("URL param %s was empty", key)
 	}
 	return strconv.Atoi(idStr)
+}
+
+func (h handler) jsonResponseHandler(handleFunc func(http.ResponseWriter, *http.Request) (interface{}, int, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, status, err := handleFunc(w, r)
+		if err != nil {
+			h.log.Println(err)
+		}
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(data)
+		if err != nil {
+			h.log.Printf("Could not encode response to output: %v", err)
+		}
+	}
 }

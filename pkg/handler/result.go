@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 )
 
 func (h handler) resultGetOne(w http.ResponseWriter, r *http.Request) {

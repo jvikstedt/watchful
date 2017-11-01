@@ -1,4 +1,4 @@
-package manager
+package exec
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -76,13 +76,13 @@ func (s *Service) Run() error {
 				JobID:   sj.job.ID,
 				Status:  model.ResultStatusWaiting,
 			}
-			err := s.model.ResultCreate(&result)
+			err := s.model.DB().ResultCreate(&result)
 			if err != nil {
 				s.log.Println(err)
 			}
 			go s.executeJob(result)
 		case <-s.close:
-			s.log.Println("manager closed")
+			s.log.Println("exec closed")
 			return nil
 		default:
 			time.Sleep(time.Second * 2)
@@ -92,7 +92,7 @@ func (s *Service) Run() error {
 
 func (s *Service) executeJob(result model.Result) {
 	job := model.Job{}
-	err := s.model.JobGetOne(result.JobID, &job)
+	err := s.model.DB().JobGetOne(result.JobID, &job)
 	if err != nil {
 		s.log.Println(err)
 		return
@@ -111,7 +111,7 @@ func (s *Service) executeJob(result model.Result) {
 	}
 
 	result.Status = model.ResultStatusDone
-	s.model.ResultUpdate(&result)
+	s.model.DB().ResultUpdate(&result)
 }
 
 func (s *Service) handleTask(result model.Result, task *model.Task) error {
@@ -141,5 +141,5 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 		Output:   string(bytes),
 	}
 
-	return s.model.ResultItemCreate(&resultItem)
+	return s.model.DB().ResultItemCreate(&resultItem)
 }

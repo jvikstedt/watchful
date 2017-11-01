@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/jvikstedt/watchful/manager"
+	"github.com/jvikstedt/watchful/pkg/exec"
 )
 
 type JSON struct{}
@@ -13,13 +13,13 @@ func (j JSON) Identifier() string {
 	return "json"
 }
 
-func (j JSON) Instruction() manager.Instruction {
-	return manager.Instruction{
+func (j JSON) Instruction() exec.Instruction {
+	return exec.Instruction{
 		Dynamic: true,
-		Input: []manager.Param{
-			manager.Param{Type: manager.ParamBytes, Name: "rawjson", Required: true},
+		Input: []exec.Param{
+			exec.Param{Type: exec.ParamBytes, Name: "rawjson", Required: true},
 		},
-		Output: []manager.Param{},
+		Output: []exec.Param{},
 	}
 }
 

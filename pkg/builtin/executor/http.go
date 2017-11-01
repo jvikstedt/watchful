@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/jvikstedt/watchful/manager"
+	"github.com/jvikstedt/watchful/pkg/exec"
 )
 
 type HTTP struct{}
@@ -14,14 +14,14 @@ func (h HTTP) Identifier() string {
 	return "http"
 }
 
-func (h HTTP) Instruction() manager.Instruction {
-	return manager.Instruction{
-		Input: []manager.Param{
-			manager.Param{Type: manager.ParamString, Name: "url", Required: true},
+func (h HTTP) Instruction() exec.Instruction {
+	return exec.Instruction{
+		Input: []exec.Param{
+			exec.Param{Type: exec.ParamString, Name: "url", Required: true},
 		},
-		Output: []manager.Param{
-			manager.Param{Type: manager.ParamInt, Name: "statusCode"},
-			manager.Param{Type: manager.ParamBytes, Name: "body"},
+		Output: []exec.Param{
+			exec.Param{Type: exec.ParamInt, Name: "statusCode"},
+			exec.Param{Type: exec.ParamBytes, Name: "body"},
 		},
 	}
 }

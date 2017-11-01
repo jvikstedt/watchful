@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 )
 
 func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +14,7 @@ func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	input := model.Input{}
-	if h.checkErr(h.model.InputGetOne(inputID, &input), w, http.StatusNotFound) {
+	if h.checkErr(h.model.DB().InputGetOne(inputID, &input), w, http.StatusNotFound) {
 		return
 	}
 
@@ -23,7 +23,7 @@ func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.model.InputUpdate(&input), w, http.StatusUnprocessableEntity) {
+	if h.checkErr(h.model.DB().InputUpdate(&input), w, http.StatusUnprocessableEntity) {
 		return
 	}
 

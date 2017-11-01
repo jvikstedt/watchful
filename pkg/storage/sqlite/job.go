@@ -1,6 +1,6 @@
 package sqlite
 
-import "github.com/jvikstedt/watchful/model"
+import "github.com/jvikstedt/watchful/pkg/model"
 
 func (s *sqlite) JobGetOne(id int, job *model.Job) error {
 	return s.q.Get(job, "SELECT jobs.* FROM jobs WHERE id=$1", id)

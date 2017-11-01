@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 )
 
 func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +30,7 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	executor := h.manager.Executors()[task.Executor]
+	executor := h.exec.Executors()[task.Executor]
 	for _, i := range executor.Instruction().Input {
 		input := model.Input{Name: i.Name}
 		task.Inputs = append(task.Inputs, &input)
@@ -50,7 +50,7 @@ func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := model.Task{}
-	if h.checkErr(h.model.TaskGetOne(taskID, &task), w, http.StatusNotFound) {
+	if h.checkErr(h.model.DB().TaskGetOne(taskID, &task), w, http.StatusNotFound) {
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.model.TaskUpdate(&task), w, http.StatusUnprocessableEntity) {
+	if h.checkErr(h.model.DB().TaskUpdate(&task), w, http.StatusUnprocessableEntity) {
 		return
 	}
 
@@ -73,7 +73,7 @@ func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := model.Task{ID: taskID}
-	if h.checkErr(h.model.TaskDelete(&task), w, http.StatusInternalServerError) {
+	if h.checkErr(h.model.DB().TaskDelete(&task), w, http.StatusInternalServerError) {
 		return
 	}
 

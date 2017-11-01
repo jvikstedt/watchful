@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jvikstedt/watchful/manager"
+	"github.com/jvikstedt/watchful/pkg/exec"
 )
 
 type executorResp struct {
 	Identifier string `json:"identifier"`
-	manager.Instruction
+	exec.Instruction
 }
 
 func (h handler) executorAll(w http.ResponseWriter, r *http.Request) {
-	executors := h.manager.Executors()
+	executors := h.exec.Executors()
 
 	responses := []executorResp{}
 	for key, v := range executors {

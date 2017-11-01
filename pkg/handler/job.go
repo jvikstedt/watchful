@@ -4,23 +4,29 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jvikstedt/watchful/model"
+	"github.com/jvikstedt/watchful/pkg/model"
 )
 
-func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) {
+func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	decoder := json.NewDecoder(r.Body)
-
 	job := &model.Job{}
 
-	if err := decoder.Decode(job); h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	err := decoder.Decode(job)
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if h.checkErr(h.model.JobCreate(job), w, http.StatusUnprocessableEntity) {
-		return
+	err = h.model.ValidateJob(job)
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	json.NewEncoder(w).Encode(job)
+	err = h.model.DB().JobCreate(job)
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
+	}
+
+	return job, http.StatusCreated, nil
 }
 
 func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +36,7 @@ func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	job := model.Job{}
-	if h.checkErr(h.model.JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
+	if h.checkErr(h.model.DB().JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
 		return
 	}
 
@@ -44,7 +50,7 @@ func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	job := model.Job{}
-	if h.checkErr(h.model.JobGetOne(jobID, &job), w, http.StatusNotFound) {
+	if h.checkErr(h.model.DB().JobGetOne(jobID, &job), w, http.StatusNotFound) {
 		return
 	}
 
@@ -53,7 +59,7 @@ func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.checkErr(h.model.JobUpdate(&job), w, http.StatusUnprocessableEntity) {
+	if h.checkErr(h.model.DB().JobUpdate(&job), w, http.StatusUnprocessableEntity) {
 		return
 	}
 
@@ -67,11 +73,11 @@ func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) {
 	}
 
 	job := model.Job{}
-	if h.checkErr(h.model.JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
+	if h.checkErr(h.model.DB().JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
 		return
 	}
 
-	id := h.manager.AddScheduledJob(&job, true)
+	id := h.exec.AddScheduledJob(&job, true)
 
 	json.NewEncoder(w).Encode(id)
 }

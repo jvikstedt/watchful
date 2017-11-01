@@ -1,6 +1,6 @@
 package sqlite
 
-import "github.com/jvikstedt/watchful/model"
+import "github.com/jvikstedt/watchful/pkg/model"
 
 func (s *sqlite) InputAllByJobID(jobID int) ([]*model.Input, error) {
 	inputs := []*model.Input{}
