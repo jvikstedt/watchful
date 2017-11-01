@@ -30,7 +30,7 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	executor := h.exec.Executors()[task.Executor]
+	executor := h.manager.Executors()[task.Executor]
 	for _, i := range executor.Instruction().Input {
 		input := model.Input{Name: i.Name}
 		task.Inputs = append(task.Inputs, &input)

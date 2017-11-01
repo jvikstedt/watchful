@@ -13,7 +13,7 @@ type executorResp struct {
 }
 
 func (h handler) executorAll(w http.ResponseWriter, r *http.Request) {
-	executors := h.exec.Executors()
+	executors := h.manager.Executors()
 
 	responses := []executorResp{}
 	for key, v := range executors {

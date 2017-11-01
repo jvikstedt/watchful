@@ -30,14 +30,14 @@ func main() {
 
 	modelService := model.New(logger, storage)
 
-	exec := exec.NewService(logger, modelService)
-	exec.RegisterExecutor(executor.Equal{})
-	exec.RegisterExecutor(executor.HTTP{})
-	exec.RegisterExecutor(executor.JSON{})
+	manager := exec.NewManager(logger, modelService)
+	manager.RegisterExecutor(executor.Equal{})
+	manager.RegisterExecutor(executor.HTTP{})
+	manager.RegisterExecutor(executor.JSON{})
 
-	go exec.Run()
+	go manager.Run()
 
-	http.Handle("/", handler.New(logger, modelService, exec))
+	http.Handle("/", handler.New(logger, modelService, manager))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {
@@ -58,7 +58,7 @@ func main() {
 		logger.Println("Server closed!")
 	}
 
-	if err := exec.Shutdown(); err != nil {
-		logger.Printf("Unable to shutdown exec: %v", err)
+	if err := manager.Shutdown(); err != nil {
+		logger.Printf("Unable to shutdown manager: %v", err)
 	}
 }

@@ -16,16 +16,13 @@ type Executor interface {
 	Execute(map[string]interface{}) (map[string]interface{}, error)
 }
 
-type Handler interface {
-}
-
 type scheduledJob struct {
 	id        string
 	job       *model.Job
 	isTestRun bool
 }
 
-type Service struct {
+type Manager struct {
 	log            *log.Logger
 	model          *model.Service
 	executors      map[string]Executor
@@ -33,8 +30,8 @@ type Service struct {
 	scheduledJobCh chan scheduledJob
 }
 
-func NewService(log *log.Logger, model *model.Service) *Service {
-	return &Service{
+func NewManager(log *log.Logger, model *model.Service) *Manager {
+	return &Manager{
 		log:            log,
 		model:          model,
 		executors:      make(map[string]Executor),
@@ -43,20 +40,20 @@ func NewService(log *log.Logger, model *model.Service) *Service {
 	}
 }
 
-func (s *Service) RegisterExecutor(e Executor) {
+func (s *Manager) RegisterExecutor(e Executor) {
 	s.executors[e.Identifier()] = e
 }
 
-func (s *Service) Executors() map[string]Executor {
+func (s *Manager) Executors() map[string]Executor {
 	return s.executors
 }
 
-func (s *Service) Shutdown() error {
+func (s *Manager) Shutdown() error {
 	s.close <- true
 	return nil
 }
 
-func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
+func (s *Manager) AddScheduledJob(job *model.Job, isTestRun bool) string {
 	u1 := uuid.NewV1()
 	s.scheduledJobCh <- scheduledJob{
 		id:        u1.String(),
@@ -66,7 +63,7 @@ func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
 	return u1.String()
 }
 
-func (s *Service) Run() error {
+func (s *Manager) Run() error {
 	for {
 		select {
 		case sj := <-s.scheduledJobCh:
@@ -90,7 +87,7 @@ func (s *Service) Run() error {
 	}
 }
 
-func (s *Service) executeJob(result model.Result) {
+func (s *Manager) executeJob(result model.Result) {
 	job := model.Job{}
 	err := s.model.DB().JobGetOne(result.JobID, &job)
 	if err != nil {
@@ -114,7 +111,7 @@ func (s *Service) executeJob(result model.Result) {
 	s.model.DB().ResultUpdate(&result)
 }
 
-func (s *Service) handleTask(result model.Result, task *model.Task) error {
+func (s *Manager) handleTask(result model.Result, task *model.Task) error {
 	executor, ok := s.executors[task.Executor]
 	if !ok {
 		return fmt.Errorf("Could not find executor: %s", task.Executor)
