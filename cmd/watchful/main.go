@@ -7,8 +7,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/jvikstedt/watchful/pkg/builtin/executor"
 	"github.com/jvikstedt/watchful/pkg/exec"
+	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/handler"
 	"github.com/jvikstedt/watchful/pkg/model"
 	"github.com/jvikstedt/watchful/pkg/storage/sqlite"
@@ -31,9 +31,9 @@ func main() {
 	modelService := model.New(logger, storage)
 
 	manager := exec.NewManager(logger, modelService)
-	manager.RegisterExecutor(executor.Equal{})
-	manager.RegisterExecutor(executor.HTTP{})
-	manager.RegisterExecutor(executor.JSON{})
+	manager.RegisterExecutor(builtin.Equal{})
+	manager.RegisterExecutor(builtin.HTTP{})
+	manager.RegisterExecutor(builtin.JSON{})
 
 	go manager.Run()
 
