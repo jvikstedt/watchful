@@ -66,7 +66,7 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 
 		r.Route("/inputs", func(r chi.Router) {
 			r.Route("/{inputID}", func(r chi.Router) {
-				r.Put("/", h.inputUpdate)
+				r.Put("/", h.jsonResponseHandler(h.inputUpdate))
 			})
 		})
 
