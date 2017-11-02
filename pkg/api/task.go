@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/jvikstedt/watchful/pkg/model"
@@ -30,7 +31,10 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) (interface{}
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	executable := h.exec.Executables()[task.Executable]
+	executable, ok := h.exec.Executables()[task.Executable]
+	if !ok {
+		return EmptyObject, http.StatusNotFound, fmt.Errorf("Could not find executable by identifier: %s", task.Executable)
+	}
 	for _, i := range executable.Instruction().Input {
 		input := model.Input{Name: i.Name}
 		task.Inputs = append(task.Inputs, &input)
