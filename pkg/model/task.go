@@ -15,8 +15,8 @@ type Task struct {
 }
 
 func (s *Service) TaskCreate(task *Task) error {
-	return s.db.BeginTx(func(q Querier) error {
-		err := q.TaskCreate(task)
+	return s.db.BeginTx(func(s Storager) error {
+		err := s.TaskCreate(task)
 		if err != nil {
 			return err
 		}
@@ -24,7 +24,7 @@ func (s *Service) TaskCreate(task *Task) error {
 		if len(task.Inputs) > 0 {
 			for _, i := range task.Inputs {
 				i.TaskID = task.ID
-				err = q.InputCreate(i)
+				err = s.InputCreate(i)
 				if err != nil {
 					return err
 				}

@@ -2,7 +2,7 @@ package model
 
 import "log"
 
-type Querier interface {
+type Storager interface {
 	JobCreate(*Job) error
 	JobUpdate(*Job) error
 	JobGetOne(int, *Job) error
@@ -30,10 +30,10 @@ type Querier interface {
 }
 
 type db interface {
-	Querier
+	Storager
 	Close() error
 	EnsureTables() error
-	BeginTx(func(Querier) error) error
+	BeginTx(func(Storager) error) error
 }
 
 type Service struct {

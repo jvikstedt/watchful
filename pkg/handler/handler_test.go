@@ -10,7 +10,7 @@ import (
 
 	"github.com/jvikstedt/watchful/pkg/handler"
 	"github.com/jvikstedt/watchful/pkg/model"
-	"github.com/jvikstedt/watchful/pkg/storage/sqlite"
+	"github.com/jvikstedt/watchful/pkg/sqlite"
 )
 
 var testHandler http.Handler
