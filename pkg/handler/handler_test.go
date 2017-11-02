@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/jvikstedt/watchful"
+	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/handler"
 	"github.com/jvikstedt/watchful/pkg/model"
 	"github.com/jvikstedt/watchful/pkg/sqlite"
@@ -57,5 +58,8 @@ func (s *executorMock) AddScheduledJob(job *model.Job, isTestRun bool) string {
 }
 
 func (s *executorMock) Executables() map[string]watchful.Executable {
-	return map[string]watchful.Executable{}
+	return map[string]watchful.Executable{
+		"http":  builtin.HTTP{},
+		"equal": builtin.Equal{},
+	}
 }
