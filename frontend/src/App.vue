@@ -33,6 +33,6 @@ export default {
     background-color: #FFFFFF;
   }
   .main.container {
-    margin-top: 4em;
+    padding-top: 4em;
   }
 </style>
