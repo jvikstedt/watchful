@@ -1,4 +1,4 @@
-package handler_test
+package api_test
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/jvikstedt/watchful"
+	"github.com/jvikstedt/watchful/pkg/api"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
-	"github.com/jvikstedt/watchful/pkg/handler"
 	"github.com/jvikstedt/watchful/pkg/model"
 	"github.com/jvikstedt/watchful/pkg/sqlite"
 )
@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 	modelService = model.New(logger, storage)
 
 	executorMock := &executorMock{}
-	testHandler = handler.New(logger, modelService, executorMock)
+	testHandler = api.New(logger, modelService, executorMock)
 
 	retCode := m.Run()
 	os.Exit(retCode)

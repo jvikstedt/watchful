@@ -7,9 +7,9 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/jvikstedt/watchful/pkg/api"
 	"github.com/jvikstedt/watchful/pkg/exec"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
-	"github.com/jvikstedt/watchful/pkg/handler"
 	"github.com/jvikstedt/watchful/pkg/model"
 	"github.com/jvikstedt/watchful/pkg/sqlite"
 )
@@ -37,7 +37,7 @@ func main() {
 
 	go execService.Run()
 
-	http.Handle("/", handler.New(logger, modelService, execService))
+	http.Handle("/", api.New(logger, modelService, execService))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {
