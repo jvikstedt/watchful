@@ -11,13 +11,18 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/jvikstedt/watchful/pkg/exec"
+	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/model"
 )
 
+type executor interface {
+	AddScheduledJob(job *model.Job, isTestRun bool) string
+	Executables() map[string]watchful.Executable
+}
+
 var EmptyObject = struct{}{}
 
-func New(logger *log.Logger, model *model.Service, exec *exec.Service) http.Handler {
+func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -75,7 +80,7 @@ func New(logger *log.Logger, model *model.Service, exec *exec.Service) http.Hand
 type handler struct {
 	log   *log.Logger
 	model *model.Service
-	exec  *exec.Service
+	exec  executor
 }
 
 func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {

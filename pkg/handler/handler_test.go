@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/handler"
 	"github.com/jvikstedt/watchful/pkg/model"
 	"github.com/jvikstedt/watchful/pkg/sqlite"
@@ -27,7 +28,8 @@ func TestMain(m *testing.M) {
 
 	modelService := model.New(logger, storage)
 
-	testHandler = handler.New(logger, modelService, nil)
+	executorMock := &executorMock{}
+	testHandler = handler.New(logger, modelService, executorMock)
 
 	retCode := m.Run()
 	os.Exit(retCode)
@@ -44,4 +46,15 @@ func makeRequest(t *testing.T, method string, path string, body string) (int, *b
 	testHandler.ServeHTTP(rr, req)
 
 	return rr.Result().StatusCode, rr.Body
+}
+
+type executorMock struct {
+}
+
+func (s *executorMock) AddScheduledJob(job *model.Job, isTestRun bool) string {
+	return ""
+}
+
+func (s *executorMock) Executables() map[string]watchful.Executable {
+	return map[string]watchful.Executable{}
 }
