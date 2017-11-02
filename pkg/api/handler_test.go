@@ -53,7 +53,7 @@ func makeRequest(t *testing.T, method string, path string, body string) (int, *b
 type executorMock struct {
 }
 
-func (s *executorMock) AddScheduledJob(job *model.Job, isTestRun bool) string {
+func (s *executorMock) AddJob(job *model.Job, isTestRun bool) string {
 	return "test"
 }
 

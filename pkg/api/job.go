@@ -78,7 +78,7 @@ func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) (interface{}
 		return EmptyObject, http.StatusNotFound, err
 	}
 
-	id := h.exec.AddScheduledJob(&job, true)
+	id := h.exec.AddJob(&job, true)
 
 	return id, http.StatusOK, nil
 }

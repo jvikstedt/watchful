@@ -11,27 +11,27 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type scheduledJob struct {
+type work struct {
 	id        string
 	job       *model.Job
 	isTestRun bool
 }
 
 type Service struct {
-	log            *log.Logger
-	model          *model.Service
-	executables    map[string]watchful.Executable
-	close          chan bool
-	scheduledJobCh chan scheduledJob
+	log         *log.Logger
+	model       *model.Service
+	executables map[string]watchful.Executable
+	close       chan bool
+	workCh      chan work
 }
 
 func New(log *log.Logger, model *model.Service) *Service {
 	return &Service{
-		log:            log,
-		model:          model,
-		executables:    make(map[string]watchful.Executable),
-		close:          make(chan bool),
-		scheduledJobCh: make(chan scheduledJob, 10),
+		log:         log,
+		model:       model,
+		executables: make(map[string]watchful.Executable),
+		close:       make(chan bool),
+		workCh:      make(chan work, 10),
 	}
 }
 
@@ -48,9 +48,9 @@ func (s *Service) Shutdown() error {
 	return nil
 }
 
-func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
+func (s *Service) AddJob(job *model.Job, isTestRun bool) string {
 	u1 := uuid.NewV1()
-	s.scheduledJobCh <- scheduledJob{
+	s.workCh <- work{
 		id:        u1.String(),
 		job:       job,
 		isTestRun: isTestRun,
@@ -61,7 +61,7 @@ func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
 func (s *Service) Run() error {
 	for {
 		select {
-		case sj := <-s.scheduledJobCh:
+		case sj := <-s.workCh:
 			result := model.Result{
 				UUID:    sj.id,
 				TestRun: sj.isTestRun,

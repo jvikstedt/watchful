@@ -16,7 +16,7 @@ import (
 )
 
 type executor interface {
-	AddScheduledJob(job *model.Job, isTestRun bool) string
+	AddJob(job *model.Job, isTestRun bool) string
 	Executables() map[string]watchful.Executable
 }
 
