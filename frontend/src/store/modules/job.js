@@ -68,9 +68,9 @@ export default {
         commit(ERROR_TRIGGERED, e)
       }
     },
-    async taskCreate ({ commit, state }, executor) {
+    async taskCreate ({ commit, state }, executable) {
       try {
-        const task = await api.post('/tasks', { jobID: 1, executor })
+        const task = await api.post('/tasks', { jobID: 1, executable })
         commit(TASK_CREATE_SUCCESS, task)
       } catch (e) {
         commit(ERROR_TRIGGERED, e)

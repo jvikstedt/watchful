@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS jobs (
 CREATE TABLE IF NOT EXISTS tasks (
 	id integer PRIMARY KEY,
 	job_id integer,
-	executor text,
+	executable text,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp,
 	deleted_at timestamp,

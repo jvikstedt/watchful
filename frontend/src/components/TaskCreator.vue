@@ -1,8 +1,8 @@
 <template>
   <div>
-    <select v-model="selectedExecutor">
+    <select v-model="selectedExecutable">
       <option value="" selected disabled hidden>-</option>
-      <option v-for="executor in executors">{{ executor.identifier }}</option>
+      <option v-for="executable in executables">{{ executable.identifier }}</option>
     </select>
     <button class="ui button" @click="taskCreate">Add task</button>
   </div>
@@ -11,14 +11,14 @@
 <script>
 
 export default {
-  props: ['executors', 'onTaskAdd'],
+  props: ['executables', 'onTaskAdd'],
   data: () => ({
-    selectedExecutor: ''
+    selectedExecutable: ''
   }),
   methods: {
     taskCreate () {
-      if (this.selectedExecutor) {
-        this.onTaskAdd(this.selectedExecutor)
+      if (this.selectedExecutable) {
+        this.onTaskAdd(this.selectedExecutable)
       }
     }
   }

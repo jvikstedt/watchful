@@ -31,9 +31,9 @@ func main() {
 	modelService := model.New(logger, storage)
 
 	manager := exec.NewManager(logger, modelService)
-	manager.RegisterExecutor(builtin.Equal{})
-	manager.RegisterExecutor(builtin.HTTP{})
-	manager.RegisterExecutor(builtin.JSON{})
+	manager.RegisterExecutable(builtin.Equal{})
+	manager.RegisterExecutable(builtin.HTTP{})
+	manager.RegisterExecutable(builtin.JSON{})
 
 	go manager.Run()
 

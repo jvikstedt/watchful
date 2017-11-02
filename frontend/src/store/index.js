@@ -24,22 +24,22 @@ export default new Vuex.Store({
     'test': test
   },
   state: {
-    executors: {},
+    executables: {},
     flash: null
   },
   actions: {
-    async getExecutors ({ commit }) {
+    async getExecutables ({ commit }) {
       try {
-        const executors = await api.get('/executors')
-        commit(EXECUTOR_FETCH_ALL_SUCCESS, executors)
+        const executables = await api.get('/executables')
+        commit(EXECUTOR_FETCH_ALL_SUCCESS, executables)
       } catch (e) {
         commit(ERROR_TRIGGERED, e)
       }
     }
   },
   mutations: {
-    [EXECUTOR_FETCH_ALL_SUCCESS] (state, executors) {
-      state.executors = Object.assign({}, ...executors.map(e => ({[e['identifier']]: e})))
+    [EXECUTOR_FETCH_ALL_SUCCESS] (state, executables) {
+      state.executables = Object.assign({}, ...executables.map(e => ({[e['identifier']]: e})))
     },
     [ERROR_TRIGGERED] (state, error) {
       state.flash = { status: 'error', header: 'Something went wrong!', body: error.toString() }

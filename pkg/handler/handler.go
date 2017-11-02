@@ -65,8 +65,8 @@ func New(logger *log.Logger, model *model.Service, manager *exec.Manager) http.H
 			})
 		})
 
-		r.Route("/executors", func(r chi.Router) {
-			r.Get("/", h.executorAll)
+		r.Route("/executables", func(r chi.Router) {
+			r.Get("/", h.executableAll)
 		})
 	})
 	return r

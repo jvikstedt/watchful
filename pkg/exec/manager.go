@@ -10,7 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type Executor interface {
+type Executable interface {
 	Identifier() string
 	Instruction() Instruction
 	Execute(map[string]interface{}) (map[string]interface{}, error)
@@ -25,7 +25,7 @@ type scheduledJob struct {
 type Manager struct {
 	log            *log.Logger
 	model          *model.Service
-	executors      map[string]Executor
+	executables    map[string]Executable
 	close          chan bool
 	scheduledJobCh chan scheduledJob
 }
@@ -34,18 +34,18 @@ func NewManager(log *log.Logger, model *model.Service) *Manager {
 	return &Manager{
 		log:            log,
 		model:          model,
-		executors:      make(map[string]Executor),
+		executables:    make(map[string]Executable),
 		close:          make(chan bool),
 		scheduledJobCh: make(chan scheduledJob, 10),
 	}
 }
 
-func (s *Manager) RegisterExecutor(e Executor) {
-	s.executors[e.Identifier()] = e
+func (s *Manager) RegisterExecutable(e Executable) {
+	s.executables[e.Identifier()] = e
 }
 
-func (s *Manager) Executors() map[string]Executor {
-	return s.executors
+func (s *Manager) Executables() map[string]Executable {
+	return s.executables
 }
 
 func (s *Manager) Shutdown() error {
@@ -112,9 +112,9 @@ func (s *Manager) executeJob(result model.Result) {
 }
 
 func (s *Manager) handleTask(result model.Result, task *model.Task) error {
-	executor, ok := s.executors[task.Executor]
+	executable, ok := s.executables[task.Executable]
 	if !ok {
-		return fmt.Errorf("Could not find executor: %s", task.Executor)
+		return fmt.Errorf("Could not find executable: %s", task.Executable)
 	}
 
 	commands := map[string]interface{}{}
@@ -122,7 +122,7 @@ func (s *Manager) handleTask(result model.Result, task *model.Task) error {
 		commands[i.Name] = i.Value
 	}
 
-	output, err := executor.Execute(commands)
+	output, err := executable.Execute(commands)
 	if err != nil {
 		return err
 	}

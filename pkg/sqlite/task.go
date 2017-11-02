@@ -5,7 +5,7 @@ import (
 )
 
 func (s *sqlite) TaskCreate(task *model.Task) error {
-	result, err := s.q.Exec(`INSERT INTO tasks (job_id, executor, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, task.JobID, task.Executor)
+	result, err := s.q.Exec(`INSERT INTO tasks (job_id, executable, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, task.JobID, task.Executable)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (s *sqlite) TaskAllByJobID(jobID int) ([]*model.Task, error) {
 }
 
 func (s *sqlite) TaskUpdate(task *model.Task) error {
-	_, err := s.q.Exec(`UPDATE tasks SET executor = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, task.Executor, task.ID)
+	_, err := s.q.Exec(`UPDATE tasks SET executable = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, task.Executable, task.ID)
 	if err != nil {
 		return err
 	}
