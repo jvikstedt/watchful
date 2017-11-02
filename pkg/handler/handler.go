@@ -43,7 +43,7 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 		r.Route("/jobs", func(r chi.Router) {
 			r.Post("/", h.jsonResponseHandler(h.jobCreate))
 			r.Route("/{jobID}", func(r chi.Router) {
-				r.Get("/tasks", h.taskAll)
+				r.Get("/tasks", h.jsonResponseHandler(h.taskAll))
 				r.Get("/", h.jsonResponseHandler(h.jobGetOne))
 				r.Put("/", h.jsonResponseHandler(h.jobUpdate))
 				r.Post("/test_run", h.jsonResponseHandler(h.jobTestRun))
@@ -51,10 +51,10 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 		})
 
 		r.Route("/tasks", func(r chi.Router) {
-			r.Post("/", h.taskCreate)
+			r.Post("/", h.jsonResponseHandler(h.taskCreate))
 			r.Route("/{taskID}", func(r chi.Router) {
-				r.Delete("/", h.taskDelete)
-				r.Put("/", h.taskUpdate)
+				r.Delete("/", h.jsonResponseHandler(h.taskDelete))
+				r.Put("/", h.jsonResponseHandler(h.taskUpdate))
 			})
 		})
 
@@ -71,7 +71,7 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 		})
 
 		r.Route("/executables", func(r chi.Router) {
-			r.Get("/", h.executableAll)
+			r.Get("/", h.jsonResponseHandler(h.executableAll))
 		})
 	})
 	return r

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/jvikstedt/watchful"
@@ -12,7 +11,7 @@ type executableResp struct {
 	watchful.Instruction
 }
 
-func (h handler) executableAll(w http.ResponseWriter, r *http.Request) {
+func (h handler) executableAll(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	executors := h.exec.Executables()
 
 	responses := []executableResp{}
@@ -20,5 +19,5 @@ func (h handler) executableAll(w http.ResponseWriter, r *http.Request) {
 		responses = append(responses, executableResp{Identifier: key, Instruction: v.Instruction()})
 	}
 
-	json.NewEncoder(w).Encode(responses)
+	return responses, http.StatusOK, nil
 }

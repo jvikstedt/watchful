@@ -7,27 +7,27 @@ import (
 	"github.com/jvikstedt/watchful/pkg/model"
 )
 
-func (h handler) taskAll(w http.ResponseWriter, r *http.Request) {
+func (h handler) taskAll(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	jobID, err := h.getURLParamInt(r, "jobID")
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	tasks, err := h.model.TasksWithInputsByJobID(jobID)
-	if h.checkErr(err, w, http.StatusInternalServerError) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusInternalServerError, err
 	}
 
-	json.NewEncoder(w).Encode(tasks)
+	return tasks, http.StatusOK, nil
 }
 
-func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
+func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	decoder := json.NewDecoder(r.Body)
 
 	task := model.Task{}
 
-	if err := decoder.Decode(&task); h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err := decoder.Decode(&task); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	executable := h.exec.Executables()[task.Executable]
@@ -36,46 +36,46 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) {
 		task.Inputs = append(task.Inputs, &input)
 	}
 
-	if h.checkErr(h.model.TaskCreate(&task), w, http.StatusUnprocessableEntity) {
-		return
+	if err := h.model.TaskCreate(&task); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	json.NewEncoder(w).Encode(task)
+	return task, http.StatusCreated, nil
 }
 
-func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) {
+func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	taskID, err := h.getURLParamInt(r, "taskID")
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	task := model.Task{}
-	if h.checkErr(h.model.DB().TaskGetOne(taskID, &task), w, http.StatusNotFound) {
-		return
+	if err := h.model.DB().TaskGetOne(taskID, &task); err != nil {
+		return EmptyObject, http.StatusNotFound, err
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&task); h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err := decoder.Decode(&task); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if h.checkErr(h.model.DB().TaskUpdate(&task), w, http.StatusUnprocessableEntity) {
-		return
+	if err := h.model.DB().TaskUpdate(&task); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	json.NewEncoder(w).Encode(task)
+	return task, http.StatusOK, nil
 }
 
-func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) {
+func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	taskID, err := h.getURLParamInt(r, "taskID")
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	task := model.Task{ID: taskID}
-	if h.checkErr(h.model.DB().TaskDelete(&task), w, http.StatusInternalServerError) {
-		return
+	if err := h.model.DB().TaskDelete(&task); err != nil {
+		return EmptyObject, http.StatusNotFound, err
 	}
 
-	json.NewEncoder(w).Encode(task)
+	return task, http.StatusOK, nil
 }
