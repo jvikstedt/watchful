@@ -1,20 +1,19 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/jvikstedt/watchful/pkg/model"
 )
 
-func (h handler) resultGetOne(w http.ResponseWriter, r *http.Request) {
+func (h handler) resultGetOne(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	uuid := chi.URLParam(r, "uuid")
 
 	result := model.Result{}
-	if h.checkErr(h.model.ResultGetOneByUUID(uuid, &result), w, http.StatusNotFound) {
-		return
+	if err := h.model.ResultGetOneByUUID(uuid, &result); err != nil {
+		return EmptyObject, http.StatusNotFound, err
 	}
 
-	json.NewEncoder(w).Encode(result)
+	return result, http.StatusOK, nil
 }

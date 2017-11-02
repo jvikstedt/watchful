@@ -60,7 +60,7 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 
 		r.Route("/results", func(r chi.Router) {
 			r.Route("/{uuid}", func(r chi.Router) {
-				r.Get("/", h.resultGetOne)
+				r.Get("/", h.jsonResponseHandler(h.resultGetOne))
 			})
 		})
 
