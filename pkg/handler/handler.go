@@ -17,7 +17,7 @@ import (
 
 var EmptyObject = struct{}{}
 
-func New(logger *log.Logger, model *model.Service, manager *exec.Manager) http.Handler {
+func New(logger *log.Logger, model *model.Service, exec *exec.Service) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -32,7 +32,7 @@ func New(logger *log.Logger, model *model.Service, manager *exec.Manager) http.H
 	})
 	r.Use(cors.Handler)
 
-	h := handler{logger, model, manager}
+	h := handler{logger, model, exec}
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
@@ -73,9 +73,9 @@ func New(logger *log.Logger, model *model.Service, manager *exec.Manager) http.H
 }
 
 type handler struct {
-	log     *log.Logger
-	model   *model.Service
-	manager *exec.Manager
+	log   *log.Logger
+	model *model.Service
+	exec  *exec.Service
 }
 
 func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {

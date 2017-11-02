@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/jvikstedt/watchful/pkg/exec"
+	"github.com/jvikstedt/watchful"
 )
 
 type Equal struct{}
@@ -13,13 +13,13 @@ func (e Equal) Identifier() string {
 	return "equal"
 }
 
-func (e Equal) Instruction() exec.Instruction {
-	return exec.Instruction{
-		Input: []exec.Param{
-			exec.Param{Type: exec.ParamString, Name: "value", Required: true},
-			exec.Param{Type: exec.ParamAny, Name: "actual", Required: true},
+func (e Equal) Instruction() watchful.Instruction {
+	return watchful.Instruction{
+		Input: []watchful.Param{
+			watchful.Param{Type: watchful.ParamString, Name: "value", Required: true},
+			watchful.Param{Type: watchful.ParamAny, Name: "actual", Required: true},
 		},
-		Output: []exec.Param{},
+		Output: []watchful.Param{},
 	}
 }
 

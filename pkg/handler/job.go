@@ -77,7 +77,7 @@ func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := h.manager.AddScheduledJob(&job, true)
+	id := h.exec.AddScheduledJob(&job, true)
 
 	json.NewEncoder(w).Encode(id)
 }

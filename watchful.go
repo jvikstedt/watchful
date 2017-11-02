@@ -1,4 +1,10 @@
-package exec
+package watchful
+
+type Executable interface {
+	Identifier() string
+	Instruction() Instruction
+	Execute(map[string]interface{}) (map[string]interface{}, error)
+}
 
 type ParamType int
 

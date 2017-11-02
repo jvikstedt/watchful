@@ -6,15 +6,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/model"
 	uuid "github.com/satori/go.uuid"
 )
-
-type Executable interface {
-	Identifier() string
-	Instruction() Instruction
-	Execute(map[string]interface{}) (map[string]interface{}, error)
-}
 
 type scheduledJob struct {
 	id        string
@@ -22,38 +17,38 @@ type scheduledJob struct {
 	isTestRun bool
 }
 
-type Manager struct {
+type Service struct {
 	log            *log.Logger
 	model          *model.Service
-	executables    map[string]Executable
+	executables    map[string]watchful.Executable
 	close          chan bool
 	scheduledJobCh chan scheduledJob
 }
 
-func NewManager(log *log.Logger, model *model.Service) *Manager {
-	return &Manager{
+func New(log *log.Logger, model *model.Service) *Service {
+	return &Service{
 		log:            log,
 		model:          model,
-		executables:    make(map[string]Executable),
+		executables:    make(map[string]watchful.Executable),
 		close:          make(chan bool),
 		scheduledJobCh: make(chan scheduledJob, 10),
 	}
 }
 
-func (s *Manager) RegisterExecutable(e Executable) {
+func (s *Service) RegisterExecutable(e watchful.Executable) {
 	s.executables[e.Identifier()] = e
 }
 
-func (s *Manager) Executables() map[string]Executable {
+func (s *Service) Executables() map[string]watchful.Executable {
 	return s.executables
 }
 
-func (s *Manager) Shutdown() error {
+func (s *Service) Shutdown() error {
 	s.close <- true
 	return nil
 }
 
-func (s *Manager) AddScheduledJob(job *model.Job, isTestRun bool) string {
+func (s *Service) AddScheduledJob(job *model.Job, isTestRun bool) string {
 	u1 := uuid.NewV1()
 	s.scheduledJobCh <- scheduledJob{
 		id:        u1.String(),
@@ -63,7 +58,7 @@ func (s *Manager) AddScheduledJob(job *model.Job, isTestRun bool) string {
 	return u1.String()
 }
 
-func (s *Manager) Run() error {
+func (s *Service) Run() error {
 	for {
 		select {
 		case sj := <-s.scheduledJobCh:
@@ -87,7 +82,7 @@ func (s *Manager) Run() error {
 	}
 }
 
-func (s *Manager) executeJob(result model.Result) {
+func (s *Service) executeJob(result model.Result) {
 	job := model.Job{}
 	err := s.model.DB().JobGetOne(result.JobID, &job)
 	if err != nil {
@@ -111,7 +106,7 @@ func (s *Manager) executeJob(result model.Result) {
 	s.model.DB().ResultUpdate(&result)
 }
 
-func (s *Manager) handleTask(result model.Result, task *model.Task) error {
+func (s *Service) handleTask(result model.Result, task *model.Task) error {
 	executable, ok := s.executables[task.Executable]
 	if !ok {
 		return fmt.Errorf("Could not find executable: %s", task.Executable)
