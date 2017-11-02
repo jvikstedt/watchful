@@ -11,73 +11,74 @@ func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) (interface{},
 	decoder := json.NewDecoder(r.Body)
 	job := &model.Job{}
 
-	err := decoder.Decode(job)
-	if err != nil {
+	if err := decoder.Decode(job); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	err = h.model.ValidateJob(job)
-	if err != nil {
+	if err := h.model.ValidateJob(job); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	err = h.model.DB().JobCreate(job)
-	if err != nil {
+	if err := h.model.DB().JobCreate(job); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	return job, http.StatusCreated, nil
 }
 
-func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) {
+func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	jobID, err := h.getURLParamInt(r, "jobID")
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	job := model.Job{}
-	if h.checkErr(h.model.DB().JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
-		return
+	if err := h.model.DB().JobGetOne(jobID, &job); err != nil {
+		return EmptyObject, http.StatusNotFound, err
 	}
 
-	json.NewEncoder(w).Encode(job)
+	return job, http.StatusOK, nil
 }
 
-func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) {
+func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	jobID, err := h.getURLParamInt(r, "jobID")
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	job := model.Job{}
-	if h.checkErr(h.model.DB().JobGetOne(jobID, &job), w, http.StatusNotFound) {
-		return
+	job := &model.Job{}
+	if err := h.model.DB().JobGetOne(jobID, job); err != nil {
+		return EmptyObject, http.StatusNotFound, err
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&job); h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err := decoder.Decode(job); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if h.checkErr(h.model.DB().JobUpdate(&job), w, http.StatusUnprocessableEntity) {
-		return
+	if err := h.model.ValidateJob(job); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	json.NewEncoder(w).Encode(job)
+	if err := h.model.DB().JobUpdate(job); err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
+	}
+
+	return job, http.StatusOK, nil
 }
 
-func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) {
+func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	jobID, err := h.getURLParamInt(r, "jobID")
-	if h.checkErr(err, w, http.StatusUnprocessableEntity) {
-		return
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
 	job := model.Job{}
-	if h.checkErr(h.model.DB().JobGetOne(jobID, &job), w, http.StatusInternalServerError) {
-		return
+	if err := h.model.DB().JobGetOne(jobID, &job); err != nil {
+		return EmptyObject, http.StatusNotFound, err
 	}
 
 	id := h.exec.AddScheduledJob(&job, true)
 
-	json.NewEncoder(w).Encode(id)
+	return id, http.StatusOK, nil
 }

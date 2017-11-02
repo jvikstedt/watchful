@@ -44,9 +44,9 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 			r.Post("/", h.jsonResponseHandler(h.jobCreate))
 			r.Route("/{jobID}", func(r chi.Router) {
 				r.Get("/tasks", h.taskAll)
-				r.Get("/", h.jobGetOne)
-				r.Put("/", h.jobUpdate)
-				r.Post("/test_run", h.jobTestRun)
+				r.Get("/", h.jsonResponseHandler(h.jobGetOne))
+				r.Put("/", h.jsonResponseHandler(h.jobUpdate))
+				r.Post("/test_run", h.jsonResponseHandler(h.jobTestRun))
 			})
 		})
 

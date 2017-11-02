@@ -15,6 +15,7 @@ import (
 )
 
 var testHandler http.Handler
+var modelService *model.Service
 
 func TestMain(m *testing.M) {
 	logs := &bytes.Buffer{}
@@ -26,7 +27,7 @@ func TestMain(m *testing.M) {
 	}
 	defer storage.Close()
 
-	modelService := model.New(logger, storage)
+	modelService = model.New(logger, storage)
 
 	executorMock := &executorMock{}
 	testHandler = handler.New(logger, modelService, executorMock)
@@ -52,7 +53,7 @@ type executorMock struct {
 }
 
 func (s *executorMock) AddScheduledJob(job *model.Job, isTestRun bool) string {
-	return ""
+	return "test"
 }
 
 func (s *executorMock) Executables() map[string]watchful.Executable {
