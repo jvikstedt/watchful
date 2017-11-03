@@ -23,10 +23,15 @@ CREATE TABLE IF NOT EXISTS inputs (
 	task_id integer,
 	name text,
 	value text,
+	dynamic integer DEFAULT 0,
+	source_task_id integer,
+	source_name text,
+	type integer DEFAULT 0,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp,
 	deleted_at timestamp,
-	FOREIGN KEY(task_id) REFERENCES tasks(id)
+	FOREIGN KEY(task_id) REFERENCES tasks(id),
+	FOREIGN KEY(source_task_id) REFERENCES tasks(id)
 );
 CREATE TABLE IF NOT EXISTS results (
 	id integer PRIMARY KEY,

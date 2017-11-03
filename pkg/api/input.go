@@ -14,7 +14,7 @@ func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) (interface{
 	}
 
 	input := model.Input{}
-	if err := h.model.DB().InputGetOne(inputID, &input); err != nil {
+	if err := h.model.InputGetOne(inputID, &input); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
@@ -23,7 +23,7 @@ func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) (interface{
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if err := h.model.DB().InputUpdate(&input); err != nil {
+	if err := h.model.InputUpdate(&input); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 

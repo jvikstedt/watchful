@@ -41,7 +41,7 @@ func (s *Service) TasksWithInputsByJobID(jobID int) ([]*Task, error) {
 		return tasks, err
 	}
 
-	inputs, err := s.db.InputAllByJobID(jobID)
+	inputs, err := s.InputAllByJobID(jobID)
 	if err != nil {
 		return tasks, err
 	}

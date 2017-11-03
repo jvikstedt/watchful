@@ -13,7 +13,7 @@ func (s *sqlite) InputGetOne(id int, input *model.Input) error {
 }
 
 func (s *sqlite) InputCreate(input *model.Input) error {
-	result, err := s.q.Exec(`INSERT INTO inputs (task_id, name, value, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, input.TaskID, input.Name, input.Value)
+	result, err := s.q.Exec(`INSERT INTO inputs (task_id, name, value, dynamic, source_task_id, source_name, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, input.TaskID, input.Name, input.ValueRaw, input.Dynamic, input.SourceTaskID, input.SourceName, input.Type)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (s *sqlite) InputCreate(input *model.Input) error {
 }
 
 func (s *sqlite) InputUpdate(input *model.Input) error {
-	_, err := s.q.Exec(`UPDATE inputs SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, input.Value, input.ID)
+	_, err := s.q.Exec(`UPDATE inputs SET value = ?, dynamic = ?, source_task_id = ?, source_name = ?, type = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, input.ValueRaw, input.Dynamic, input.SourceTaskID, input.SourceName, input.Type, input.ID)
 	if err != nil {
 		return err
 	}

@@ -84,9 +84,9 @@ export default {
         commit(ERROR_TRIGGERED, e)
       }
     },
-    async inputUpdate ({ commit, state, rootState }, { value, id }) {
+    async inputUpdate ({ commit, state, rootState }, { id, payload }) {
       try {
-        const response = await api.put(`/inputs/${id}`, { value })
+        const response = await api.put(`/inputs/${id}`, payload)
         commit(INPUT_UPDATE_SUCCESS, response)
       } catch (e) {
         commit(ERROR_TRIGGERED, e)

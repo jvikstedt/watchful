@@ -29,11 +29,11 @@ func TestInputUpdate(t *testing.T) {
 		id             int
 		payload        string
 		expectedStatus int
-		expectedValue  string
+		expectedValue  interface{}
 	}{
 		{name: "not found", id: 999, payload: "", expectedStatus: http.StatusNotFound},
 		{name: "empty body", id: input.ID, payload: "", expectedStatus: http.StatusUnprocessableEntity},
-		{name: "no value", id: input.ID, payload: `{"value": ""}`, expectedStatus: http.StatusOK},
+		{name: "no value", id: input.ID, payload: `{"value": ""}`, expectedStatus: http.StatusOK, expectedValue: ""},
 		{name: "valid value", id: input.ID, payload: `{"value": "something"}`, expectedStatus: http.StatusOK, expectedValue: "something"},
 	}
 
@@ -49,7 +49,7 @@ func TestInputUpdate(t *testing.T) {
 			json.NewDecoder(body).Decode(&input)
 
 			if input.Value != tc.expectedValue {
-				t.Fatalf("Expected Name %s but got %s", tc.expectedValue, input.Value)
+				t.Fatalf("Expected Value %s but got %s", tc.expectedValue, input.Value)
 			}
 		})
 	}

@@ -36,7 +36,7 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) (interface{}
 		return EmptyObject, http.StatusNotFound, fmt.Errorf("Could not find executable by identifier: %s", task.Executable)
 	}
 	for _, i := range executable.Instruction().Input {
-		input := model.Input{Name: i.Name}
+		input := model.Input{Name: i.Name, Type: i.Type}
 		task.Inputs = append(task.Inputs, &input)
 	}
 

@@ -114,7 +114,24 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 
 	commands := map[string]interface{}{}
 	for _, i := range task.Inputs {
-		commands[i.Name] = i.Value
+		if i.Dynamic {
+			resultItems, err := s.model.DB().ResultItemAllByResultID(result.ID)
+			if err != nil {
+				return err
+			}
+			for _, r := range resultItems {
+				if r.TaskID == *i.SourceTaskID {
+					output := map[string]interface{}{}
+					err = json.Unmarshal([]byte(r.Output), &output)
+					if err != nil {
+						return err
+					}
+					commands[i.Name] = output[i.SourceName]
+				}
+			}
+		} else {
+			commands[i.Name] = i.Value
+		}
 	}
 
 	output, err := executable.Execute(commands)

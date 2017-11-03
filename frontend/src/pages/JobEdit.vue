@@ -8,11 +8,11 @@
     <button :class="testBtnClasses" @click="initiateTestRun(jobID)">Test</button>
 
     <div class="ui raised segments">
-      <div class="ui segment" v-for="task in orderedTasks">
+      <div class="ui segment" v-for="(task, index) in orderedTasks">
         {{ task.id }}
         {{ task.executable }}
         <i class="close icon" @click="taskDelete(task.id)"></i>
-        <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" />
+        <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" :tasks="orderedTasks.slice(0, index)" />
         <task-output v-for="output in getExecutableByID(task.executable).output" :key="output.name" :output="output" :resultItem="resultItemByTaskID(task.id)" />
       </div>
     </div>
