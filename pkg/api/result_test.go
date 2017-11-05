@@ -33,3 +33,20 @@ func TestResultGetOne(t *testing.T) {
 		}
 	})
 }
+
+func TestResultGetAll(t *testing.T) {
+	job := model.Job{Name: "memory scanner"}
+	if err := modelService.DB().JobCreate(&job); err != nil {
+		t.Fatal(err)
+	}
+
+	result := model.Result{JobID: job.ID}
+	if err := modelService.DB().ResultCreate(&result); err != nil {
+		t.Fatal(err)
+	}
+
+	statusCode, _ := makeRequest(t, "GET", fmt.Sprintf("/jobs/%d/results", result.JobID), "")
+	if statusCode != http.StatusOK {
+		t.Fatalf("Expected StatusCode %d but got %d", http.StatusOK, statusCode)
+	}
+}

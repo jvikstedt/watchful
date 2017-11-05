@@ -21,6 +21,7 @@
         </div>
       </div>
     </div>
+    <result-list :results="results" />
   </div>
 </template>
 
@@ -29,12 +30,14 @@ import { mapActions } from 'vuex'
 import TaskCreator from '@/components/TaskCreator'
 import TaskInput from '@/components/TaskInput'
 import TaskOutput from '@/components/TaskOutput'
+import ResultList from '@/components/ResultList'
 
 export default {
   created () {
     this.$store.dispatch('getExecutables')
     this.$store.dispatch('jobFetch', this.jobID)
     this.$store.dispatch('taskFetchByJob', this.jobID)
+    this.$store.dispatch('resultFetchByJob', this.jobID)
   },
   methods: {
     ...mapActions([
@@ -61,6 +64,9 @@ export default {
     orderedTasks () {
       return this.$store.getters.orderedTasks
     },
+    results () {
+      return this.$store.state.result.all || {}
+    },
     job () {
       return this.$store.state.job.all[this.jobID] || {}
     },
@@ -83,7 +89,8 @@ export default {
   components: {
     TaskCreator,
     TaskInput,
-    TaskOutput
+    TaskOutput,
+    ResultList
   }
 }
 </script>

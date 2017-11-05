@@ -17,3 +17,17 @@ func (h handler) resultGetOne(w http.ResponseWriter, r *http.Request) (interface
 
 	return result, http.StatusOK, nil
 }
+
+func (h handler) resultAll(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	jobID, err := h.getURLParamInt(r, "jobID")
+	if err != nil {
+		return EmptyObject, http.StatusUnprocessableEntity, err
+	}
+
+	results, err := h.model.DB().ResultAllByJobID(jobID, 10)
+	if err != nil {
+		return EmptyObject, http.StatusInternalServerError, err
+	}
+
+	return results, http.StatusOK, nil
+}

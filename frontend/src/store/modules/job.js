@@ -8,7 +8,8 @@ import {
   INPUT_UPDATE_SUCCESS,
   TEST_INITIATE_SUCCESS,
   TEST_POLL_SUCCESS,
-  TEST_POLL_ERROR
+  TEST_POLL_ERROR,
+  RESULT_FETCH_BY_JOB_SUCCESS
 } from '@/store/types'
 
 import api from '@/Api'
@@ -64,6 +65,14 @@ export default {
       try {
         const response = await api.get(`/jobs/${jobID}/tasks`)
         commit(TASK_FETCH_BY_JOB_SUCCESS, response)
+      } catch (e) {
+        commit(ERROR_TRIGGERED, e)
+      }
+    },
+    async resultFetchByJob ({ commit, state }, jobID) {
+      try {
+        const response = await api.get(`/jobs/${jobID}/results`)
+        commit(RESULT_FETCH_BY_JOB_SUCCESS, response)
       } catch (e) {
         commit(ERROR_TRIGGERED, e)
       }

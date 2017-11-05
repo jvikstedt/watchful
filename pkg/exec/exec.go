@@ -6,7 +6,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/model"
@@ -78,8 +77,6 @@ func (s *Service) Run() error {
 		case <-s.close:
 			s.log.Println("exec closed")
 			return nil
-		default:
-			time.Sleep(time.Second * 2)
 		}
 	}
 }
