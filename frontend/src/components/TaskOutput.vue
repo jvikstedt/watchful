@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ output.name }} - {{ resultItem.output[output.name] }}
+    {{ output.name }} - {{ resultItem.output[output.name] | truncate(20) }}
   </div>
 </template>
 
