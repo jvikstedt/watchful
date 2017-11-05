@@ -29,11 +29,11 @@ func TestInputUpdate(t *testing.T) {
 		id             int
 		payload        string
 		expectedStatus int
-		expectedValue  interface{}
+		expectedValue  string
 	}{
 		{name: "not found", id: 999, payload: "", expectedStatus: http.StatusNotFound},
 		{name: "empty body", id: input.ID, payload: "", expectedStatus: http.StatusUnprocessableEntity},
-		{name: "no value", id: input.ID, payload: `{"value": ""}`, expectedStatus: http.StatusOK, expectedValue: ""},
+		{name: "no value", id: input.ID, payload: `{"value": ""}`, expectedStatus: http.StatusOK},
 		{name: "valid value", id: input.ID, payload: `{"value": "something"}`, expectedStatus: http.StatusOK, expectedValue: "something"},
 	}
 
