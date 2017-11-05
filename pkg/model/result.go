@@ -6,7 +6,8 @@ type ResultStatus string
 
 const (
 	ResultStatusWaiting = "waiting"
-	ResultStatusDone    = "done"
+	ResultStatusSuccess = "success"
+	ResultStatusError   = "error"
 )
 
 type Result struct {

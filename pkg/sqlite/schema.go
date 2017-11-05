@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS result_items (
 	result_id integer,
 	task_id integer,
 	output text,
+	error text,
+	status text,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp,
 	FOREIGN KEY(result_id) REFERENCES results(id),

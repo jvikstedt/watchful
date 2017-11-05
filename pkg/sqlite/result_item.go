@@ -5,7 +5,7 @@ import (
 )
 
 func (s *sqlite) ResultItemCreate(resultItem *model.ResultItem) error {
-	r, err := s.q.Exec(`INSERT INTO result_items (result_id, task_id, output, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, resultItem.ResultID, resultItem.TaskID, resultItem.Output)
+	r, err := s.q.Exec(`INSERT INTO result_items (result_id, task_id, output, error, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, resultItem.ResultID, resultItem.TaskID, resultItem.Output, resultItem.Error, resultItem.Status)
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func (s *sqlite) ResultItemGetOne(id int, resultItem *model.ResultItem) error {
 }
 
 func (s *sqlite) ResultItemUpdate(resultItem *model.ResultItem) error {
-	_, err := s.q.Exec(`UPDATE result_items SET result_id = ?, task_id = ?, output = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, resultItem.ResultID, resultItem.TaskID, resultItem.Output, resultItem.ID)
+	_, err := s.q.Exec(`UPDATE result_items SET result_id = ?, task_id = ?, output = ?, error = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, resultItem.ResultID, resultItem.TaskID, resultItem.Output, resultItem.Error, resultItem.Status, resultItem.ID)
 	if err != nil {
 		return err
 	}

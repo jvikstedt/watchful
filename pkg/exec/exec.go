@@ -98,25 +98,41 @@ func (s *Service) executeJob(result model.Result) {
 	}
 
 	for _, t := range tasks {
-		err := s.handleTask(result, t)
+		var status model.ResultStatus = model.ResultStatusSuccess
+		var errMsg string
+		output, err := s.handleTask(result, t)
 		if err != nil {
-			s.log.Println(err)
+			status = model.ResultStatusError
+			errMsg = err.Error()
+		}
+
+		resultItem := model.ResultItem{
+			ResultID: result.ID,
+			TaskID:   t.ID,
+			Output:   output,
+			Error:    errMsg,
+			Status:   status,
+		}
+
+		result.Status = status
+		err = s.model.DB().ResultItemCreate(&resultItem)
+		if err != nil {
+			result.Status = model.ResultStatusError
 		}
 	}
 
-	result.Status = model.ResultStatusDone
 	s.model.DB().ResultUpdate(&result)
 }
 
-func (s *Service) handleTask(result model.Result, task *model.Task) error {
+func (s *Service) handleTask(result model.Result, task *model.Task) (string, error) {
 	executable, ok := s.executables[task.Executable]
 	if !ok {
-		return fmt.Errorf("Could not find executable: %s", task.Executable)
+		return "", fmt.Errorf("Could not find executable: %s", task.Executable)
 	}
 
 	resultItems, err := s.model.DB().ResultItemAllByResultID(result.ID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	commands := map[string]interface{}{}
@@ -129,12 +145,12 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 					d := json.NewDecoder(strings.NewReader(r.Output))
 					d.UseNumber()
 					if err = d.Decode(&output); err != nil {
-						return err
+						return "", err
 					}
 
 					val, err := s.handleDynamicInput(output[i.SourceName], i.Type)
 					if err != nil {
-						return err
+						return "", err
 					}
 					commands[i.Name] = val
 				}
@@ -142,7 +158,7 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 		} else {
 			val, err := s.handleStaticInput(i.Value, i.Type)
 			if err != nil {
-				return err
+				return "", err
 			}
 			commands[i.Name] = val
 		}
@@ -150,21 +166,15 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 
 	output, err := executable.Execute(commands)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	bytes, err := json.Marshal(output)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	resultItem := model.ResultItem{
-		ResultID: result.ID,
-		TaskID:   task.ID,
-		Output:   string(bytes),
-	}
-
-	return s.model.DB().ResultItemCreate(&resultItem)
+	return string(bytes), nil
 }
 
 func (s *Service) handleDynamicInput(i interface{}, desiredType watchful.ParamType) (interface{}, error) {

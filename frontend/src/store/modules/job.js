@@ -105,7 +105,7 @@ export default {
       try {
         const response = await api.get(`/results/${state.test.uuid}`)
         commit(TEST_POLL_SUCCESS, response)
-        if (response.status !== 'done') {
+        if (response.status === 'waiting') {
           setTimeout(function () {
             dispatch('pollTest')
           }, 2000)
