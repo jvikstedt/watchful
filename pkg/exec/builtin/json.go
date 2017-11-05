@@ -17,7 +17,7 @@ func (j JSON) Instruction() watchful.Instruction {
 	return watchful.Instruction{
 		Dynamic: true,
 		Input: []watchful.Param{
-			watchful.Param{Type: watchful.ParamBytes, Name: "rawjson", Required: true},
+			watchful.Param{Type: watchful.ParamString, Name: "rawjson", Required: true},
 		},
 		Output: []watchful.Param{},
 	}

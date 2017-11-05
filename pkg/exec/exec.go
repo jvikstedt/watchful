@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jvikstedt/watchful"
@@ -112,25 +114,37 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 		return fmt.Errorf("Could not find executable: %s", task.Executable)
 	}
 
+	resultItems, err := s.model.DB().ResultItemAllByResultID(result.ID)
+	if err != nil {
+		return err
+	}
+
 	commands := map[string]interface{}{}
 	for _, i := range task.Inputs {
 		if i.Dynamic {
-			resultItems, err := s.model.DB().ResultItemAllByResultID(result.ID)
-			if err != nil {
-				return err
-			}
 			for _, r := range resultItems {
 				if r.TaskID == *i.SourceTaskID {
 					output := map[string]interface{}{}
-					err = json.Unmarshal([]byte(r.Output), &output)
+
+					d := json.NewDecoder(strings.NewReader(r.Output))
+					d.UseNumber()
+					if err = d.Decode(&output); err != nil {
+						return err
+					}
+
+					val, err := s.handleDynamicInput(output[i.SourceName], i.Type)
 					if err != nil {
 						return err
 					}
-					commands[i.Name] = output[i.SourceName]
+					commands[i.Name] = val
 				}
 			}
 		} else {
-			commands[i.Name] = i.Value
+			val, err := s.handleStaticInput(i.Value, i.Type)
+			if err != nil {
+				return err
+			}
+			commands[i.Name] = val
 		}
 	}
 
@@ -151,4 +165,35 @@ func (s *Service) handleTask(result model.Result, task *model.Task) error {
 	}
 
 	return s.model.DB().ResultItemCreate(&resultItem)
+}
+
+func (s *Service) handleDynamicInput(i interface{}, desiredType watchful.ParamType) (interface{}, error) {
+	switch v := i.(type) {
+	case json.Number:
+		switch desiredType {
+		case watchful.ParamString:
+			return v.String(), nil
+		case watchful.ParamInt:
+			return v.Int64()
+		case watchful.ParamFloat:
+			return v.Float64()
+		default:
+			return nil, fmt.Errorf("desiredType was not any of the expected values %d", desiredType)
+		}
+	default:
+		return i, nil
+	}
+}
+
+func (s *Service) handleStaticInput(str string, desiredType watchful.ParamType) (interface{}, error) {
+	switch desiredType {
+	case watchful.ParamString:
+		return str, nil
+	case watchful.ParamInt:
+		return strconv.ParseInt(str, 0, 64)
+	case watchful.ParamFloat:
+		return strconv.ParseFloat(str, 64)
+	default:
+		return nil, fmt.Errorf("desiredType was not any of the expected values %d", desiredType)
+	}
 }

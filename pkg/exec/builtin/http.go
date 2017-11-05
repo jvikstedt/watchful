@@ -21,7 +21,7 @@ func (h HTTP) Instruction() watchful.Instruction {
 		},
 		Output: []watchful.Param{
 			watchful.Param{Type: watchful.ParamInt, Name: "statusCode"},
-			watchful.Param{Type: watchful.ParamBytes, Name: "body"},
+			watchful.Param{Type: watchful.ParamString, Name: "body"},
 		},
 	}
 }
@@ -45,6 +45,6 @@ func (h HTTP) Execute(params map[string]interface{}) (map[string]interface{}, er
 
 	return map[string]interface{}{
 		"statusCode": response.StatusCode,
-		"body":       bodyBytes,
+		"body":       string(bodyBytes),
 	}, nil
 }

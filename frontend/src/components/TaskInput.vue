@@ -4,12 +4,6 @@
     <input type="checkbox" v-model="dynamic" />
     <template v-if="!dynamic">
       <input :id="'value' + input.id" v-model="currentValue" />
-      <template v-if="input.type === 4">
-        <input type="radio" id="string" value="string" v-model="selectedType">
-        <label for="string">string</label>
-        <input type="radio" id="integer" value="integer" v-model="selectedType">
-        <label for="integer">integer</label>
-      </template>
     </template>
     <template v-if="dynamic">
       <select v-model="sourceTaskID">
@@ -32,19 +26,14 @@ export default {
     currentValue: '',
     dynamic: false,
     sourceTaskID: null,
-    sourceName: '',
-    selectedType: 'string'
+    sourceName: ''
   }),
   methods: {
     onUpdateClick () {
       if (this.dynamic) {
         this.onUpdate({ id: this.input.id, payload: { dynamic: this.dynamic, sourceTaskID: parseInt(this.sourceTaskID), sourceName: this.sourceName } })
       } else {
-        let value = this.currentValue
-        if (this.input.type === 4 && this.selectedType === 'integer') {
-          value = parseInt(value)
-        }
-        this.onUpdate({ id: this.input.id, payload: { dynamic: this.dynamic, value: value } })
+        this.onUpdate({ id: this.input.id, payload: { dynamic: this.dynamic, value: this.currentValue } })
       }
     }
   },
