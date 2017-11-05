@@ -44,9 +44,9 @@ func (s *Service) Executables() map[string]watchful.Executable {
 	return s.executables
 }
 
-func (s *Service) Shutdown() error {
+// Shutdown blocks until it's done working
+func (s *Service) Shutdown() {
 	s.close <- true
-	return nil
 }
 
 func (s *Service) AddJob(job *model.Job, isTestRun bool) string {
@@ -75,7 +75,6 @@ func (s *Service) Run() error {
 			}
 			go s.executeJob(result)
 		case <-s.close:
-			s.log.Println("exec closed")
 			return nil
 		}
 	}

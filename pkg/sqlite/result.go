@@ -34,8 +34,8 @@ func (s *sqlite) ResultUpdate(result *model.Result) error {
 	return s.ResultGetOne(result.ID, result)
 }
 
-func (s *sqlite) ResultAllByJobID(jobID int, limit int) ([]*model.Result, error) {
+func (s *sqlite) ResultAllByJobID(jobID int, limit int, offset int) ([]*model.Result, error) {
 	results := []*model.Result{}
-	err := s.q.Select(&results, "SELECT * FROM results WHERE job_id = ? ORDER BY created_at DESC LIMIT ?", jobID, limit)
+	err := s.q.Select(&results, "SELECT * FROM results WHERE job_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?", jobID, limit, offset)
 	return results, err
 }

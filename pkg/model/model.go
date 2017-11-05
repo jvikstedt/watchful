@@ -22,7 +22,7 @@ type Storager interface {
 	ResultUpdate(*Result) error
 	ResultGetOne(int, *Result) error
 	ResultGetOneByUUID(string, *Result) error
-	ResultAllByJobID(int, int) ([]*Result, error)
+	ResultAllByJobID(int, int, int) ([]*Result, error)
 
 	ResultItemCreate(*ResultItem) error
 	ResultItemUpdate(*ResultItem) error

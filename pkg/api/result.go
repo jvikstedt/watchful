@@ -24,7 +24,7 @@ func (h handler) resultAll(w http.ResponseWriter, r *http.Request) (interface{},
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	results, err := h.model.DB().ResultAllByJobID(jobID, 10)
+	results, err := h.model.DB().ResultAllByJobID(jobID, 10, 0)
 	if err != nil {
 		return EmptyObject, http.StatusInternalServerError, err
 	}

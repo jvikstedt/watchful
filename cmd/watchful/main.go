@@ -58,7 +58,5 @@ func main() {
 		logger.Println("Server closed!")
 	}
 
-	if err := execService.Shutdown(); err != nil {
-		logger.Printf("Unable to shutdown execService: %v", err)
-	}
+	execService.Shutdown()
 }
