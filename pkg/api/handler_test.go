@@ -8,30 +8,32 @@ import (
 	"os"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/api"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/model"
-	"github.com/jvikstedt/watchful/pkg/sqlite"
 )
 
 var testHandler http.Handler
-var modelService *model.Service
+var db *sqlx.DB
 
 func TestMain(m *testing.M) {
 	logs := &bytes.Buffer{}
 	logger := log.New(logs, "", log.LstdFlags)
 
-	storage, err := sqlite.New(logger, "./test.db")
+	var err error
+	db, err = model.NewDB("sqlite3", "./test.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer storage.Close()
-
-	modelService = model.New(logger, storage)
+	defer db.Close()
+	if err := model.EnsureTables(db); err != nil {
+		log.Fatal(err)
+	}
 
 	executorMock := &executorMock{}
-	testHandler = api.New(logger, modelService, executorMock)
+	testHandler = api.New(logger, db, executorMock)
 
 	retCode := m.Run()
 	os.Exit(retCode)

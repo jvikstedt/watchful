@@ -15,11 +15,7 @@ func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) (interface{},
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if err := h.model.ValidateJob(job); err != nil {
-		return EmptyObject, http.StatusUnprocessableEntity, err
-	}
-
-	if err := h.model.DB().JobCreate(job); err != nil {
+	if err := job.Create(h.db); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
@@ -33,7 +29,7 @@ func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) (interface{},
 	}
 
 	job := model.Job{}
-	if err := h.model.DB().JobGetOne(jobID, &job); err != nil {
+	if err := model.JobGetOne(h.db, jobID, &job); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
@@ -47,7 +43,7 @@ func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) (interface{},
 	}
 
 	job := &model.Job{}
-	if err := h.model.DB().JobGetOne(jobID, job); err != nil {
+	if err := model.JobGetOne(h.db, jobID, job); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
@@ -56,11 +52,7 @@ func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) (interface{},
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if err := h.model.ValidateJob(job); err != nil {
-		return EmptyObject, http.StatusUnprocessableEntity, err
-	}
-
-	if err := h.model.DB().JobUpdate(job); err != nil {
+	if err := job.Update(h.db); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
@@ -74,7 +66,7 @@ func (h handler) jobTestRun(w http.ResponseWriter, r *http.Request) (interface{}
 	}
 
 	job := model.Job{}
-	if err := h.model.DB().JobGetOne(jobID, &job); err != nil {
+	if err := model.JobGetOne(h.db, jobID, &job); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 

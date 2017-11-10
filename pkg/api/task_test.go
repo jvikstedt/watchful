@@ -10,13 +10,13 @@ import (
 )
 
 func TestTaskGetAll(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
-	task := model.Task{JobID: job.ID}
-	if err := modelService.DB().TaskCreate(&task); err != nil {
+	task := &model.Task{JobID: job.ID}
+	if err := task.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
@@ -27,8 +27,8 @@ func TestTaskGetAll(t *testing.T) {
 }
 
 func TestTaskCreate(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
@@ -68,13 +68,13 @@ func TestTaskCreate(t *testing.T) {
 }
 
 func TestTaskUpdate(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
-	task := model.Task{JobID: job.ID, Executable: "http"}
-	if err := modelService.DB().TaskCreate(&task); err != nil {
+	task := &model.Task{JobID: job.ID, Executable: "http"}
+	if err := task.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
@@ -109,13 +109,13 @@ func TestTaskUpdate(t *testing.T) {
 }
 
 func TestTaskDelete(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
-	task := model.Task{JobID: job.ID}
-	if err := modelService.DB().TaskCreate(&task); err != nil {
+	task := &model.Task{JobID: job.ID}
+	if err := task.Create(db); err != nil {
 		t.Fatal(err)
 	}
 

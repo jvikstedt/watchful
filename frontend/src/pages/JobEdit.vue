@@ -1,6 +1,6 @@
 <template>
   <div>
-    <task-creator :executables="executables" :onTaskAdd="taskCreate" />
+    <task-creator :executables="executables" :onTaskAdd="onTaskAdd" />
     <div class="ui toggle checkbox">
       <input type="checkbox" name="public" :checked="job.active" @change="updateActive({jobID: jobID, active: $event.target.checked})">
       <label>On / Off</label>
@@ -55,6 +55,9 @@ export default {
     },
     resultItemByTaskID (taskID) {
       return this.$store.getters.resultItemsGrouped[`${this.$store.state.job.test.id}:${taskID}`] || { output: {} }
+    },
+    onTaskAdd (executable) {
+      this.taskCreate({ jobID: this.jobID, executable })
     }
   },
   computed: {
@@ -71,7 +74,7 @@ export default {
       return this.$store.state.job.all[this.jobID] || {}
     },
     jobID () {
-      return this.$route.params.id
+      return parseInt(this.$route.params.id)
     },
     result () {
       const resultID = this.$store.state.job.test.id

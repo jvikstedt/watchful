@@ -1,4 +1,4 @@
-package sqlite
+package model
 
 var schema = `
 PRAGMA foreign_keys = ON;

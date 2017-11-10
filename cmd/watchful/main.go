@@ -11,7 +11,6 @@ import (
 	"github.com/jvikstedt/watchful/pkg/exec"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/model"
-	"github.com/jvikstedt/watchful/pkg/sqlite"
 )
 
 func main() {
@@ -22,22 +21,23 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	storage, err := sqlite.New(logger, "./dev.db")
+	db, err := model.NewDB("sqlite3", "./dev.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer storage.Close()
+	defer db.Close()
+	if err := model.EnsureTables(db); err != nil {
+		log.Fatal(err)
+	}
 
-	modelService := model.New(logger, storage)
-
-	execService := exec.New(logger, modelService)
+	execService := exec.New(logger, db)
 	execService.RegisterExecutable(builtin.Equal{})
 	execService.RegisterExecutable(builtin.HTTP{})
 	execService.RegisterExecutable(builtin.JSON{})
 
 	go execService.Run()
 
-	http.Handle("/", api.New(logger, modelService, execService))
+	http.Handle("/", api.New(logger, db, execService))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/model"
 	uuid "github.com/satori/go.uuid"
@@ -20,16 +21,16 @@ type work struct {
 
 type Service struct {
 	log         *log.Logger
-	model       *model.Service
+	db          *sqlx.DB
 	executables map[string]watchful.Executable
 	close       chan bool
 	workCh      chan work
 }
 
-func New(log *log.Logger, model *model.Service) *Service {
+func New(log *log.Logger, db *sqlx.DB) *Service {
 	return &Service{
 		log:         log,
-		model:       model,
+		db:          db,
 		executables: make(map[string]watchful.Executable),
 		close:       make(chan bool),
 		workCh:      make(chan work, 10),
@@ -69,7 +70,7 @@ func (s *Service) Run() error {
 				JobID:   sj.job.ID,
 				Status:  model.ResultStatusWaiting,
 			}
-			err := s.model.DB().ResultCreate(&result)
+			err := result.Create(s.db)
 			if err != nil {
 				s.log.Println(err)
 			}
@@ -82,12 +83,12 @@ func (s *Service) Run() error {
 
 func (s *Service) executeJob(result model.Result) {
 	job := model.Job{}
-	err := s.model.DB().JobGetOne(result.JobID, &job)
+	err := model.JobGetOne(s.db, result.JobID, &job)
 	if err != nil {
 		s.log.Println(err)
 		return
 	}
-	tasks, err := s.model.TasksWithInputsByJobID(result.JobID)
+	tasks, err := model.TasksWithInputsByJobID(s.db, result.JobID)
 	if err != nil {
 		s.log.Println(err)
 		return
@@ -102,7 +103,7 @@ func (s *Service) executeJob(result model.Result) {
 			errMsg = err.Error()
 		}
 
-		resultItem := model.ResultItem{
+		resultItem := &model.ResultItem{
 			ResultID: result.ID,
 			TaskID:   t.ID,
 			Output:   output,
@@ -111,13 +112,13 @@ func (s *Service) executeJob(result model.Result) {
 		}
 
 		result.Status = status
-		err = s.model.DB().ResultItemCreate(&resultItem)
+		err = resultItem.Create(s.db)
 		if err != nil {
 			result.Status = model.ResultStatusError
 		}
 	}
 
-	s.model.DB().ResultUpdate(&result)
+	result.Update(s.db)
 }
 
 func (s *Service) handleTask(result model.Result, task *model.Task) (string, error) {
@@ -126,7 +127,7 @@ func (s *Service) handleTask(result model.Result, task *model.Task) (string, err
 		return "", fmt.Errorf("Could not find executable: %s", task.Executable)
 	}
 
-	resultItems, err := s.model.DB().ResultItemAllByResultID(result.ID)
+	resultItems, err := model.ResultItemAllByResultID(s.db, result.ID)
 	if err != nil {
 		return "", err
 	}

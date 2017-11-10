@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/jmoiron/sqlx"
 	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/model"
 )
@@ -22,7 +23,7 @@ type executor interface {
 
 var EmptyObject = struct{}{}
 
-func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
+func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -37,7 +38,7 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 	})
 	r.Use(cors.Handler)
 
-	h := handler{logger, model, exec}
+	h := handler{logger, db, exec}
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
@@ -79,9 +80,9 @@ func New(logger *log.Logger, model *model.Service, exec executor) http.Handler {
 }
 
 type handler struct {
-	log   *log.Logger
-	model *model.Service
-	exec  executor
+	log  *log.Logger
+	db   *sqlx.DB
+	exec executor
 }
 
 func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {

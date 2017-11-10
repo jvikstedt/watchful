@@ -9,13 +9,13 @@ import (
 )
 
 func TestResultGetOne(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
-	result := model.Result{UUID: "abc", JobID: job.ID}
-	if err := modelService.DB().ResultCreate(&result); err != nil {
+	result := &model.Result{UUID: "abc", JobID: job.ID}
+	if err := result.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
@@ -35,13 +35,13 @@ func TestResultGetOne(t *testing.T) {
 }
 
 func TestResultGetAll(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
-	result := model.Result{JobID: job.ID}
-	if err := modelService.DB().ResultCreate(&result); err != nil {
+	result := &model.Result{JobID: job.ID}
+	if err := result.Create(db); err != nil {
 		t.Fatal(err)
 	}
 

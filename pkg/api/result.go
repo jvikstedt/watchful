@@ -11,7 +11,7 @@ func (h handler) resultGetOne(w http.ResponseWriter, r *http.Request) (interface
 	uuid := chi.URLParam(r, "uuid")
 
 	result := model.Result{}
-	if err := h.model.ResultGetOneByUUID(uuid, &result); err != nil {
+	if err := model.ResultGetOneByUUIDWithItems(h.db, uuid, &result); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
@@ -24,7 +24,7 @@ func (h handler) resultAll(w http.ResponseWriter, r *http.Request) (interface{},
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	results, err := h.model.DB().ResultAllByJobID(jobID, 10, 0)
+	results, err := model.ResultAllByJobID(h.db, jobID, 10, 0)
 	if err != nil {
 		return EmptyObject, http.StatusInternalServerError, err
 	}

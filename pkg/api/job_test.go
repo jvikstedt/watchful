@@ -42,8 +42,8 @@ func TestJobCreate(t *testing.T) {
 }
 
 func TestJobGetOne(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
@@ -63,8 +63,8 @@ func TestJobGetOne(t *testing.T) {
 }
 
 func TestJobUpdate(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
@@ -100,8 +100,8 @@ func TestJobUpdate(t *testing.T) {
 }
 
 func TestJobTestRun(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	err := modelService.DB().JobCreate(&job)
+	job := &model.Job{Name: "memory scanner"}
+	err := job.Create(db)
 	if err != nil {
 		t.Fatal(err)
 	}

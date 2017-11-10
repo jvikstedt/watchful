@@ -10,17 +10,17 @@ import (
 )
 
 func TestInputUpdate(t *testing.T) {
-	job := model.Job{Name: "memory scanner"}
-	if err := modelService.DB().JobCreate(&job); err != nil {
+	job := &model.Job{Name: "memory scanner"}
+	if err := job.Create(db); err != nil {
 		t.Fatal(err)
 	}
 
-	task := model.Task{JobID: job.ID}
-	if err := modelService.DB().TaskCreate(&task); err != nil {
+	task := &model.Task{JobID: job.ID}
+	if err := task.Create(db); err != nil {
 		t.Fatal(err)
 	}
-	input := model.Input{Name: "url", TaskID: task.ID}
-	if err := modelService.DB().InputCreate(&input); err != nil {
+	input := &model.Input{Name: "url", TaskID: task.ID}
+	if err := input.Create(db); err != nil {
 		t.Fatal(err)
 	}
 

@@ -13,17 +13,17 @@ func (h handler) inputUpdate(w http.ResponseWriter, r *http.Request) (interface{
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	input := model.Input{}
-	if err := h.model.DB().InputGetOne(inputID, &input); err != nil {
+	input := &model.Input{}
+	if err := model.InputGetOne(h.db, inputID, input); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&input); err != nil {
+	if err := decoder.Decode(input); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if err := h.model.DB().InputUpdate(&input); err != nil {
+	if err := input.Update(h.db); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 

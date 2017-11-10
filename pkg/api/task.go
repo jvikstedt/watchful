@@ -14,7 +14,7 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) (interface{}, i
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	tasks, err := h.model.TasksWithInputsByJobID(jobID)
+	tasks, err := model.TasksWithInputsByJobID(h.db, jobID)
 	if err != nil {
 		return EmptyObject, http.StatusInternalServerError, err
 	}
@@ -25,9 +25,9 @@ func (h handler) taskAll(w http.ResponseWriter, r *http.Request) (interface{}, i
 func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	decoder := json.NewDecoder(r.Body)
 
-	task := model.Task{}
+	task := &model.Task{}
 
-	if err := decoder.Decode(&task); err != nil {
+	if err := decoder.Decode(task); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
@@ -40,7 +40,7 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) (interface{}
 		task.Inputs = append(task.Inputs, &input)
 	}
 
-	if err := h.model.TaskCreate(&task); err != nil {
+	if err := task.Create(h.db); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
@@ -53,17 +53,17 @@ func (h handler) taskUpdate(w http.ResponseWriter, r *http.Request) (interface{}
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	task := model.Task{}
-	if err := h.model.DB().TaskGetOne(taskID, &task); err != nil {
+	task := &model.Task{}
+	if err := model.TaskGetOne(h.db, taskID, task); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&task); err != nil {
+	if err := decoder.Decode(task); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	if err := h.model.DB().TaskUpdate(&task); err != nil {
+	if err := task.Update(h.db); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
@@ -76,8 +76,8 @@ func (h handler) taskDelete(w http.ResponseWriter, r *http.Request) (interface{}
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	task := model.Task{ID: taskID}
-	if err := h.model.DB().TaskDelete(&task); err != nil {
+	task := &model.Task{ID: taskID}
+	if err := task.Delete(h.db); err != nil {
 		return EmptyObject, http.StatusNotFound, err
 	}
 
