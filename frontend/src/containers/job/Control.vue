@@ -22,7 +22,7 @@ export default {
       'initiateTestRun'
     ]),
     onTaskAdd (executable) {
-      this.taskCreate({ jobID: this.job.id, executable })
+      this.taskCreate({jobID: this.job.id, executable})
     },
     onActiveChange (active) {
       this.updateActive({jobID: this.job.id, active})

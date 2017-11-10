@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ output.name }} - {{ resultItem.output[output.name] | truncate(20) }}
+    {{ output.name }} - <span v-if="resultItem.output">{{ resultItem.output[output.name] | truncate(20) }}</span>
   </div>
 </template>
 

@@ -1,14 +1,13 @@
 <template>
   <div>
-    <Control :job="job" />
-    <TasksEdit />
+    <Control v-if="job" :job="job" />
+    <TasksEdit :tasks="orderedTasks" />
     <result-list :results="results" />
   </div>
 </template>
 
 <script>
 import ResultList from '@/components/ResultList'
-
 import Control from '@/containers/job/Control'
 import TasksEdit from '@/containers/job/TasksEdit'
 
@@ -21,13 +20,16 @@ export default {
   },
   computed: {
     results () {
-      return this.$store.state.result.all || {}
+      return this.$store.state.job.results
     },
     job () {
-      return this.$store.state.job.all[this.jobID] || {}
+      return this.$store.state.job.jobs[this.jobID]
     },
     jobID () {
       return this.$route.params.id
+    },
+    orderedTasks () {
+      return this.$store.getters.orderedTasks
     }
   },
   components: {

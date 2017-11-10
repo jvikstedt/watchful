@@ -2,10 +2,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import job from './modules/job'
-import input from './modules/input'
-import task from './modules/task'
-import result from './modules/result'
-import test from './modules/test'
 
 import api from '@/Api'
 
@@ -19,11 +15,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
-    'job': job,
-    'input': input,
-    'task': task,
-    'result': result,
-    'test': test
+    'job': job
   },
   state: {
     executables: {},
