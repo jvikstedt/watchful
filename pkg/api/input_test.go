@@ -47,9 +47,10 @@ func TestInputUpdate(t *testing.T) {
 
 			input := model.Input{}
 			json.NewDecoder(body).Decode(&input)
-
-			if input.Value != tc.expectedValue {
-				t.Fatalf("Expected Value %s but got %s", tc.expectedValue, input.Value)
+			if input.Value != nil {
+				if input.Value.Val != tc.expectedValue {
+					t.Fatalf("Expected Value %s but got %s", tc.expectedValue, input.Value)
+				}
 			}
 		})
 	}

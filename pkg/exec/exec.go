@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -153,7 +152,7 @@ func (s *Service) handleTask(result model.Result, task *model.Task) (string, err
 				}
 			}
 		} else {
-			val, err := s.handleStaticInput(i.Value, i.Type)
+			val, err := s.handleDynamicInput(i.Value.Val, i.Type)
 			if err != nil {
 				return "", err
 			}
@@ -189,18 +188,5 @@ func (s *Service) handleDynamicInput(i interface{}, desiredType watchful.ParamTy
 		}
 	default:
 		return i, nil
-	}
-}
-
-func (s *Service) handleStaticInput(str string, desiredType watchful.ParamType) (interface{}, error) {
-	switch desiredType {
-	case watchful.ParamString:
-		return str, nil
-	case watchful.ParamInt:
-		return strconv.ParseInt(str, 0, 64)
-	case watchful.ParamFloat:
-		return strconv.ParseFloat(str, 64)
-	default:
-		return nil, fmt.Errorf("desiredType was not any of the expected values %d", desiredType)
 	}
 }
