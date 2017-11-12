@@ -4,7 +4,7 @@
     <input type="checkbox" v-model="dynamic" />
     <template v-if="!dynamic">
       <input :id="'value' + input.id" v-model="currentValue" />
-      <select v-model="datatype">
+      <select v-model="type">
         <option :value="0">Integer</option>
         <option :value="1">String</option>
         <option :value="2">Float</option>
@@ -32,14 +32,14 @@ export default {
     dynamic: false,
     sourceTaskID: null,
     sourceName: '',
-    datatype: 0
+    type: 0
   }),
   methods: {
     onUpdateClick () {
       if (this.dynamic) {
         this.onUpdate({ id: this.input.id, payload: { dynamic: this.dynamic, sourceTaskID: parseInt(this.sourceTaskID), sourceName: this.sourceName } })
       } else {
-        this.onUpdate({ id: this.input.id, payload: { dynamic: this.dynamic, value: this.currentValueTyped } })
+        this.onUpdate({ id: this.input.id, payload: { dynamic: this.dynamic, value: this.currentValueTyped, type: this.type } })
       }
     }
   },
@@ -49,17 +49,19 @@ export default {
       if (this.dynamic) {
         return this.input.sourceTaskID !== parseInt(this.sourceTaskID) || this.input.sourceName !== this.sourceName
       } else {
-        return this.input.value !== this.currentValueTyped
+        return this.input.value !== this.currentValueTyped || this.input.type !== this.type
       }
     },
     currentValueTyped () {
-      switch (this.datatype) {
+      switch (this.type) {
         case 0:
-          return parseInt(this.currentValue)
+          let i = parseInt(this.currentValue)
+          return isNaN(i) ? null : i
         case 1:
           return this.currentValue
         case 2:
-          return parseInt(this.currentValue)
+          i = parseFloat(this.currentValue)
+          return isNaN(i) ? null : i
         default:
           return this.currentValue
       }
@@ -70,7 +72,7 @@ export default {
     this.dynamic = this.input.dynamic
     this.sourceTaskID = this.input.sourceTaskID
     this.sourceName = this.input.sourceName
-    this.datatype = this.input.type
+    this.type = this.input.type
   }
 }
 </script>

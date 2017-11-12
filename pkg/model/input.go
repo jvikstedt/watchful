@@ -11,7 +11,7 @@ type Input struct {
 	ID           int                `json:"id"`
 	TaskID       int                `json:"taskID" db:"task_id"`
 	Name         string             `json:"name"`
-	Value        *InputValue        `json:"value"`
+	Value        InputValue         `json:"value"`
 	Dynamic      bool               `json:"dynamic"`
 	SourceTaskID *int               `json:"sourceTaskID" db:"source_task_id"`
 	SourceName   string             `json:"sourceName" db:"source_name"`

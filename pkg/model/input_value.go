@@ -20,10 +20,7 @@ func (iv *InputValue) UnmarshalJSON(b []byte) error {
 	return d.Decode(&iv.Val)
 }
 
-func (iv *InputValue) Value() (driver.Value, error) {
-	if iv == nil {
-		return nil, nil
-	}
+func (iv InputValue) Value() (driver.Value, error) {
 	return json.Marshal(&iv.Val)
 }
 func (iv *InputValue) Scan(value interface{}) error {
