@@ -13,10 +13,12 @@ CREATE TABLE IF NOT EXISTS tasks (
 	id integer PRIMARY KEY,
 	job_id integer,
 	executable text,
+	seq integer,
 	created_at timestamp,
 	updated_at timestamp DEFAULT current_timestamp,
 	deleted_at timestamp,
-	FOREIGN KEY(job_id) REFERENCES jobs(id)
+	FOREIGN KEY(job_id) REFERENCES jobs(id),
+	UNIQUE(job_id, seq)
 );
 CREATE TABLE IF NOT EXISTS inputs (
 	id integer PRIMARY KEY,

@@ -7,6 +7,8 @@
         <i v-if="resultItemByTaskID(task.id).status === 'error'" class="frown large icon red" style="float: right"></i>
         <i v-if="resultItemByTaskID(task.id).status === 'success'" class="smile large icon green" style="float: right"></i>
         <i class="close icon" @click="taskDelete(task.id)"></i>
+        <i v-if="index > 0" class="angle up icon" @click="up(index)"></i>
+        <i v-if="index < tasks.length - 1" class="angle down icon" @click="down(index)"></i>
         <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" :tasks="tasks.slice(0, index)" />
         <task-output v-for="output in getExecutableByID(task.executable).output" :key="output.name" :output="output" :resultItem="resultItemByTaskID(task.id)" />
         <div class="error">
@@ -29,7 +31,8 @@ export default {
   methods: {
     ...mapActions([
       'taskDelete',
-      'inputUpdate'
+      'inputUpdate',
+      'taskSwapSeq'
     ]),
     getInputByID (id) {
       return this.$store.state.job.inputs[id] || {}
@@ -40,6 +43,12 @@ export default {
     resultItemByTaskID (taskID) {
       const result = this.$store.getters.testResult || {}
       return _.find(result.resultItems, ri => ri.taskID === taskID) || {}
+    },
+    up (taskIndex) {
+      this.taskSwapSeq({ id1: this.tasks[taskIndex].id, id2: this.tasks[taskIndex - 1].id })
+    },
+    down (taskIndex) {
+      this.taskSwapSeq({ id1: this.tasks[taskIndex].id, id2: this.tasks[taskIndex + 1].id })
     }
   },
   computed: {

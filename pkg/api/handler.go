@@ -54,6 +54,7 @@ func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
 
 		r.Route("/tasks", func(r chi.Router) {
 			r.Post("/", h.jsonResponseHandler(h.taskCreate))
+			r.Post("/swap_seq", h.jsonResponseHandler(h.taskSwapSeq))
 			r.Route("/{taskID}", func(r chi.Router) {
 				r.Delete("/", h.jsonResponseHandler(h.taskDelete))
 				r.Put("/", h.jsonResponseHandler(h.taskUpdate))

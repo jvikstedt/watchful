@@ -11,53 +11,53 @@ type Task struct {
 	JobID      int        `json:"jobID" db:"job_id"`
 	Executable string     `json:"executable"`
 	Inputs     []*Input   `json:"inputs"`
+	Seq        int        `json:"seq"`
 	CreatedAt  time.Time  `json:"createdAt" db:"created_at" `
 	UpdatedAt  time.Time  `json:"updatedAt" db:"updated_at"`
 	DeletedAt  *time.Time `json:"deletedAt" db:"deleted_at"`
 }
 
-func (t *Task) Create(db *sqlx.DB) error {
-	tx, err := db.Beginx()
-	if err != nil {
-		return err
+func (t *Task) Create(e sqlx.Ext) error {
+	var seq int
+	if err := sqlx.Get(e, &seq, "SELECT MAX(seq) FROM tasks WHERE job_id = ?", t.JobID); err != nil {
+		seq = 0
 	}
-	result, err := tx.Exec(`INSERT INTO
-		tasks (job_id, executable, created_at, updated_at)
-		VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, t.JobID, t.Executable)
+	t.Seq = seq + 1
+
+	result, err := e.Exec(`INSERT INTO
+		tasks (job_id, executable, seq, created_at, updated_at)
+		VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, t.JobID, t.Executable, t.Seq)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
-	if err := TaskGetOne(tx, int(id), t); err != nil {
-		tx.Rollback()
+	if err := TaskGetOne(e, int(id), t); err != nil {
 		return err
 	}
 
 	if len(t.Inputs) > 0 {
 		for _, i := range t.Inputs {
 			i.TaskID = t.ID
-			err = i.Create(tx)
+			err = i.Create(e)
 			if err != nil {
-				tx.Rollback()
 				return err
 			}
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 func (t *Task) Update(e sqlx.Ext) error {
 	_, err := e.Exec(`UPDATE tasks
 		SET executable = ?,
+		SET seq = ?,
 		updated_at = CURRENT_TIMESTAMP
-		WHERE id = ?`, t.Executable, t.ID)
+		WHERE id = ?`, t.Executable, t.Seq, t.ID)
 	if err != nil {
 		return err
 	}
@@ -71,6 +71,15 @@ func (t *Task) Delete(e sqlx.Ext) error {
 		return err
 	}
 	return TaskGetOne(e, t.ID, t)
+}
+
+func TaskSwapSeq(e sqlx.Ext, t1 *Task, t2 *Task) error {
+	_, err := e.Exec(`UPDATE tasks SET seq = NULL WHERE id IN (?, ?)`, t1.ID, t2.ID)
+	if err != nil {
+		return err
+	}
+	_, err = e.Exec(`UPDATE tasks SET seq = CASE id WHEN ? THEN ? WHEN ? THEN ? END WHERE id IN (?, ?)`, t1.ID, t2.Seq, t2.ID, t1.Seq, t1.ID, t2.ID)
+	return err
 }
 
 func TasksWithInputsByJobID(e sqlx.Ext, jobID int) ([]*Task, error) {
@@ -101,6 +110,6 @@ func TaskGetOne(e sqlx.Ext, id int, task *Task) error {
 
 func TaskAllByJobID(e sqlx.Ext, jobID int) ([]*Task, error) {
 	tasks := []*Task{}
-	err := sqlx.Select(e, &tasks, "SELECT * FROM tasks WHERE job_id = ? AND deleted_at IS NULL", jobID)
+	err := sqlx.Select(e, &tasks, "SELECT * FROM tasks WHERE job_id = ? AND deleted_at IS NULL ORDER BY seq", jobID)
 	return tasks, err
 }

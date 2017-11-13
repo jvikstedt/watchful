@@ -5,6 +5,7 @@ import {
   JOB_FETCH_SUCCESS,
   JOB_UPDATE_ACTIVE_SUCCESS,
   TASK_FETCH_BY_JOB_SUCCESS,
+  TASK_SWAP_SEQ_SUCCESS,
   TASK_CREATE_SUCCESS,
   TASK_DELETE_SUCCESS,
   INPUT_UPDATE_SUCCESS,
@@ -21,7 +22,6 @@ const state = {
   results: {},
   tasks: {},
   inputs: {},
-  taskOrder: [],
   test: {
     status: 'none',
     uuid: '',
@@ -54,19 +54,22 @@ const mutations = {
   },
   [TASK_FETCH_BY_JOB_SUCCESS] (state, tasks) {
     state.tasks = { ...state.tasks, ...(_.keyBy(tasks.map(t => ({ ...t, inputs: t.inputs.map(i => i.id) })), 'id')) }
-    state.taskOrder = tasks.map(t => t.id)
 
     const inputs = [].concat.apply([], tasks.map(t => t.inputs))
     state.inputs = Object.assign(state.inputs, ...inputs.map(t => ({[t['id']]: t})))
   },
+  [TASK_SWAP_SEQ_SUCCESS] (state, { id1, id2 }) {
+    const task1 = state.tasks[id1]
+    const task2 = state.tasks[id2]
+
+    state.tasks = { ...state.tasks, [task1.id]: { ...task1, seq: task2.seq }, [task2.id]: { ...task2, seq: task1.seq } }
+  },
   [TASK_CREATE_SUCCESS] (state, task) {
     state.tasks = { ...state.tasks, [task.id]: { ...task, inputs: task.inputs.map(t => t.id) } }
-    state.taskOrder = [...state.taskOrder, task.id]
     state.inputs = Object.assign(state.inputs, ...task.inputs.map(t => ({[t['id']]: t})))
   },
   [TASK_DELETE_SUCCESS] (state, task) {
     state.tasks = _.omit(state.tasks, [task.id])
-    state.taskOrder = state.taskOrder.filter(id => id !== task.id)
   },
   [INPUT_UPDATE_SUCCESS] (state, input) {
     state.inputs = { ...state.inputs, [input.id]: { ...input } }
@@ -78,7 +81,7 @@ const getters = {
     return state.results[state.test.id]
   },
   orderedTasks (state) {
-    return state.taskOrder.map(id => state.tasks[id])
+    return _.orderBy(state.tasks, 'seq', 'asc')
   }
 }
 
@@ -104,6 +107,14 @@ const actions = {
     try {
       const response = await api.get(`/jobs/${jobID}/tasks`)
       commit(TASK_FETCH_BY_JOB_SUCCESS, response)
+    } catch (e) {
+      commit(ERROR_TRIGGERED, e)
+    }
+  },
+  async taskSwapSeq ({ commit, state }, { id1, id2 }) {
+    try {
+      await api.post('/tasks/swap_seq', { id1, id2 })
+      commit(TASK_SWAP_SEQ_SUCCESS, { id1, id2 })
     } catch (e) {
       commit(ERROR_TRIGGERED, e)
     }

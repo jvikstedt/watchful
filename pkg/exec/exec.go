@@ -110,7 +110,9 @@ func (s *Service) executeJob(result model.Result) {
 			Status:   status,
 		}
 
-		result.Status = status
+		if result.Status != model.ResultStatusError {
+			result.Status = status
+		}
 		err = resultItem.Create(s.db)
 		if err != nil {
 			result.Status = model.ResultStatusError
