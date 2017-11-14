@@ -53,9 +53,9 @@ func (t *Task) Create(e sqlx.Ext) error {
 }
 
 func (t *Task) Update(e sqlx.Ext) error {
-	_, err := e.Exec(`UPDATE tasks
-		SET executable = ?,
-		SET seq = ?,
+	_, err := e.Exec(`UPDATE tasks SET
+		executable = ?,
+		seq = ?,
 		updated_at = CURRENT_TIMESTAMP
 		WHERE id = ?`, t.Executable, t.Seq, t.ID)
 	if err != nil {
