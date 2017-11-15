@@ -12,6 +12,8 @@ const (
 	ParamInt ParamType = iota
 	ParamString
 	ParamFloat
+	ParamBool
+	ParamArray
 )
 
 type Param struct {
