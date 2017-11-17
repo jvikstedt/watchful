@@ -9,7 +9,8 @@
         <i class="close icon" @click="taskDelete(task.id)"></i>
         <i v-if="index > 0" class="angle up icon" @click="up(index)"></i>
         <i v-if="index < tasks.length - 1" class="angle down icon" @click="down(index)"></i>
-        <task-input v-for="inputID in task.inputs" :key="inputID" :input="getInputByID(inputID)" :onUpdate="inputUpdate" :tasks="tasks.slice(0, index)" />
+        <input-creator :onInputAdd="(name, type) => inputCreate({ taskID: task.id, name: name, type: type })" />
+        <task-input v-for="inputID in task.inputs" :key="inputID" :input="inputByInputID(inputID)" :onInputUpdate="value => inputUpdate({ id: inputID, payload: value })" :onInputDelete="inputDelete" />
         <task-output v-for="output in getExecutableByID(task.executable).output" :key="output.name" :output="output" :resultItem="resultItemByTaskID(task.id)" />
         <div class="error">
           {{ resultItemByTaskID(task.id).error }}
@@ -23,6 +24,7 @@
 import { mapActions } from 'vuex'
 import TaskInput from '@/components/TaskInput'
 import TaskOutput from '@/components/TaskOutput'
+import InputCreator from '@/components/InputCreator'
 
 import _ from 'lodash'
 
@@ -32,13 +34,15 @@ export default {
     ...mapActions([
       'taskDelete',
       'inputUpdate',
+      'inputCreate',
+      'inputDelete',
       'taskSwapSeq'
     ]),
     getInputByID (id) {
       return this.$store.state.job.inputs[id] || {}
     },
     getExecutableByID (id) {
-      return this.$store.state.executables[id]
+      return this.$store.state.executables[id] || {}
     },
     resultItemByTaskID (taskID) {
       const result = this.$store.getters.testResult || {}
@@ -49,6 +53,9 @@ export default {
     },
     down (taskIndex) {
       this.taskSwapSeq({ id1: this.tasks[taskIndex].id, id2: this.tasks[taskIndex + 1].id })
+    },
+    inputByInputID (inputID) {
+      return this.$store.state.job.inputs[inputID]
     }
   },
   computed: {
@@ -58,7 +65,8 @@ export default {
   },
   components: {
     TaskInput,
-    TaskOutput
+    TaskOutput,
+    InputCreator
   }
 }
 </script>

@@ -68,8 +68,10 @@ func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
 		})
 
 		r.Route("/inputs", func(r chi.Router) {
+			r.Post("/", h.jsonResponseHandler(h.inputCreate))
 			r.Route("/{inputID}", func(r chi.Router) {
 				r.Put("/", h.jsonResponseHandler(h.inputUpdate))
+				r.Delete("/", h.jsonResponseHandler(h.inputDelete))
 			})
 		})
 

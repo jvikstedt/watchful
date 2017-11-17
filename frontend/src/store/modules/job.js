@@ -9,6 +9,8 @@ import {
   TASK_CREATE_SUCCESS,
   TASK_DELETE_SUCCESS,
   INPUT_UPDATE_SUCCESS,
+  INPUT_DELETE_SUCCESS,
+  INPUT_CREATE_SUCCESS,
   TEST_INITIATE_SUCCESS,
   TEST_POLL_SUCCESS,
   TEST_POLL_ERROR,
@@ -53,9 +55,9 @@ const mutations = {
     state.results = _.keyBy(results, 'id')
   },
   [TASK_FETCH_BY_JOB_SUCCESS] (state, tasks) {
-    state.tasks = { ...state.tasks, ...(_.keyBy(tasks.map(t => ({ ...t, inputs: t.inputs.map(i => i.id) })), 'id')) }
+    state.tasks = { ...state.tasks, ...(_.keyBy(tasks.map(t => ({ ...t, inputs: t.inputs ? t.inputs.map(i => i.id) : [] })), 'id')) }
 
-    const inputs = [].concat.apply([], tasks.map(t => t.inputs))
+    const inputs = [].concat.apply([], tasks.map(t => t.inputs ? t.inputs : []))
     state.inputs = Object.assign(state.inputs, ...inputs.map(t => ({[t['id']]: t})))
   },
   [TASK_SWAP_SEQ_SUCCESS] (state, { id1, id2 }) {
@@ -65,14 +67,27 @@ const mutations = {
     state.tasks = { ...state.tasks, [task1.id]: { ...task1, seq: task2.seq }, [task2.id]: { ...task2, seq: task1.seq } }
   },
   [TASK_CREATE_SUCCESS] (state, task) {
-    state.tasks = { ...state.tasks, [task.id]: { ...task, inputs: task.inputs.map(t => t.id) } }
-    state.inputs = Object.assign(state.inputs, ...task.inputs.map(t => ({[t['id']]: t})))
+    state.tasks = { ...state.tasks, [task.id]: { ...task, inputs: [] } }
+  },
+  [INPUT_CREATE_SUCCESS] (state, input) {
+    const task = state.tasks[input.taskID]
+    task.inputs = task.inputs ? [ ...task.inputs, input.id ] : [input.id]
+
+    state.tasks = { ...state.tasks, [task.id]: { ...task } }
+    state.inputs = { ...state.inputs, [input.id]: { ...input } }
   },
   [TASK_DELETE_SUCCESS] (state, task) {
     state.tasks = _.omit(state.tasks, [task.id])
   },
   [INPUT_UPDATE_SUCCESS] (state, input) {
     state.inputs = { ...state.inputs, [input.id]: { ...input } }
+  },
+  [INPUT_DELETE_SUCCESS] (state, input) {
+    const task = state.tasks[input.taskID]
+    task.inputs = _.remove(task.inputs, id => id !== input.id)
+
+    state.tasks = { ...state.tasks, [task.id]: { ...task } }
+    state.inputs = _.omit(state.inputs, [input.id])
   }
 }
 
@@ -147,6 +162,22 @@ const actions = {
     try {
       const response = await api.put(`/inputs/${id}`, payload)
       commit(INPUT_UPDATE_SUCCESS, response)
+    } catch (e) {
+      commit(ERROR_TRIGGERED, e)
+    }
+  },
+  async inputCreate ({ commit, state }, { taskID, name, type }) {
+    try {
+      const response = await api.post('/inputs', { taskID, name, type })
+      commit(INPUT_CREATE_SUCCESS, response)
+    } catch (e) {
+      commit(ERROR_TRIGGERED, e)
+    }
+  },
+  async inputDelete ({ commit, state }, inputID) {
+    try {
+      const input = await api.delete(`/inputs/${inputID}`)
+      commit(INPUT_DELETE_SUCCESS, input)
     } catch (e) {
       commit(ERROR_TRIGGERED, e)
     }

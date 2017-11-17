@@ -33,8 +33,8 @@ func TestInputUpdate(t *testing.T) {
 	}{
 		{name: "not found", id: 999, payload: "", expectedStatus: http.StatusNotFound},
 		{name: "empty body", id: input.ID, payload: "", expectedStatus: http.StatusUnprocessableEntity},
-		{name: "no value", id: input.ID, payload: `{"value": ""}`, expectedStatus: http.StatusOK},
-		{name: "valid value", id: input.ID, payload: `{"value": "something"}`, expectedStatus: http.StatusOK, expectedValue: "something"},
+		{name: "no value", id: input.ID, payload: `{"value": null}`, expectedStatus: http.StatusOK},
+		{name: "valid value", id: input.ID, payload: `{"value": {"type": 1, "val": "something"}}`, expectedStatus: http.StatusOK, expectedValue: "something"},
 	}
 
 	for _, tc := range tt {
@@ -47,9 +47,9 @@ func TestInputUpdate(t *testing.T) {
 
 			input := model.Input{}
 			json.NewDecoder(body).Decode(&input)
-			if input.Value.Val != nil {
+			if input.Value != nil {
 				if input.Value.Val != tc.expectedValue {
-					t.Fatalf("Expected Value %s but got %s", tc.expectedValue, input.Value)
+					t.Fatalf("Expected Value %s but got %s", tc.expectedValue, input.Value.Val)
 				}
 			}
 		})
