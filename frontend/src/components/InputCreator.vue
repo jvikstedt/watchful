@@ -6,6 +6,7 @@
       <option value="1">String</option>
       <option value="2">Float</option>
       <option value="3">Bool</option>
+      <option value="900">Dynamic</option>
     </select>
     <button class="ui button" @click="inputCreate">Add input</button>
   </div>

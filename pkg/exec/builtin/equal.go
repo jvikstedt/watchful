@@ -22,8 +22,8 @@ func (e Equal) Instruction() watchful.Instruction {
 	}
 }
 
-func (e Equal) Execute(params map[string]interface{}) (map[string]interface{}, error) {
-	result := map[string]interface{}{}
+func (e Equal) Execute(params map[string]interface{}) (map[string]watchful.InputValue, error) {
+	result := map[string]watchful.InputValue{}
 
 	actual, ok := params["actual"].(int64)
 	if !ok {

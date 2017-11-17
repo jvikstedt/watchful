@@ -14,6 +14,7 @@ import IntegerInput from '@/components/inputs/Integer'
 import StringInput from '@/components/inputs/String'
 import FloatInput from '@/components/inputs/Float'
 import BoolInput from '@/components/inputs/Bool'
+import DynamicInput from '@/components/inputs/Dynamic'
 
 export default {
   props: ['input', 'onInputUpdate', 'onInputDelete'],
@@ -31,7 +32,7 @@ export default {
   },
   computed: {
     isChanged () {
-      return this.currentValue !== (this.input.value ? this.input.value.val : null)
+      return JSON.stringify(this.currentValue) !== JSON.stringify(this.input.value ? this.input.value.val : null)
     },
     getComponent () {
       switch (this.input.type) {
@@ -43,6 +44,8 @@ export default {
           return FloatInput
         case 3:
           return BoolInput
+        case 900:
+          return DynamicInput
       }
     }
   },
@@ -55,7 +58,8 @@ export default {
     IntegerInput,
     StringInput,
     FloatInput,
-    BoolInput
+    BoolInput,
+    DynamicInput
   }
 }
 </script>

@@ -101,19 +101,25 @@ func (s *Service) executeJob(result model.Result) {
 			errMsg = err.Error()
 		}
 
+		bytes, err := json.Marshal(output)
+		if err != nil {
+			status = model.ResultStatusError
+			errMsg = err.Error()
+		}
+
 		resultItem := &model.ResultItem{
 			ResultID: result.ID,
 			TaskID:   t.ID,
-			Output:   output,
+			Output:   string(bytes),
 			Error:    errMsg,
 			Status:   status,
 		}
-
 		if result.Status != model.ResultStatusError {
 			result.Status = status
 		}
 		err = resultItem.Create(s.db)
 		if err != nil {
+			s.log.Println(err)
 			result.Status = model.ResultStatusError
 		}
 	}
@@ -121,58 +127,61 @@ func (s *Service) executeJob(result model.Result) {
 	result.Update(s.db)
 }
 
-func (s *Service) handleTask(result model.Result, task *model.Task) (string, error) {
-	return "not implemented", fmt.Errorf("not implemented")
-	// executable, ok := s.executables[task.Executable]
-	// if !ok {
-	// 	return "", fmt.Errorf("Could not find executable: %s", task.Executable)
-	// }
+func (s *Service) handleTask(result model.Result, task *model.Task) (map[string]watchful.InputValue, error) {
+	executable, ok := s.executables[task.Executable]
+	if !ok {
+		return nil, fmt.Errorf("Could not find executable: %s", task.Executable)
+	}
 
-	// resultItems, err := model.ResultItemAllByResultID(s.db, result.ID)
-	// if err != nil {
-	// 	return "", err
-	// }
+	commands := map[string]interface{}{}
+	for _, i := range task.Inputs {
+		val, err := s.handleInput(i.Value, result)
+		if err != nil {
+			return nil, err
+		}
+		commands[i.Name] = val
+	}
 
-	// commands := map[string]interface{}{}
-	// for _, i := range task.Inputs {
-	// 	if i.Dynamic {
-	// 		for _, r := range resultItems {
-	// 			if r.TaskID == *i.SourceTaskID {
-	// 				output := map[string]interface{}{}
+	return executable.Execute(commands)
+}
 
-	// 				d := json.NewDecoder(strings.NewReader(r.Output))
-	// 				d.UseNumber()
-	// 				if err = d.Decode(&output); err != nil {
-	// 					return "", err
-	// 				}
+func (s *Service) handleInput(iv *watchful.InputValue, result model.Result) (interface{}, error) {
+	switch iv.Type {
+	case watchful.ParamDynamic:
+		val, ok := iv.Val.(watchful.DynamicSource)
+		if !ok {
+			return nil, fmt.Errorf("Expected dynamic, but got %T", iv.Val)
+		}
 
-	// 				val, err := s.handleDynamicInput(output[i.SourceName], i.Type)
-	// 				if err != nil {
-	// 					return "", err
-	// 				}
-	// 				commands[i.Name] = val
-	// 			}
-	// 		}
-	// 	} else {
-	// 		val, err := s.handleDynamicInput(i.Value.Val, i.Type)
-	// 		if err != nil {
-	// 			return "", err
-	// 		}
-	// 		commands[i.Name] = val
-	// 	}
-	// }
+		return s.handleDynamic(val, result)
+	default:
+		return iv.Val, nil
+	}
+}
 
-	// output, err := executable.Execute(commands)
-	// if err != nil {
-	// 	return "", err
-	// }
+func (s *Service) handleDynamic(ds watchful.DynamicSource, result model.Result) (interface{}, error) {
+	resultItems, err := model.ResultItemAllByResultID(s.db, result.ID)
+	if err != nil {
+		return nil, err
+	}
 
-	// bytes, err := json.Marshal(output)
-	// if err != nil {
-	// 	return "", err
-	// }
+	sourceIV := map[string]watchful.InputValue{}
 
-	// return string(bytes), nil
+	for _, r := range resultItems {
+		if r.TaskID == ds.TaskID {
+			err := json.Unmarshal([]byte(r.Output), &sourceIV)
+			if err != nil {
+				return nil, err
+			}
+			iv, ok := sourceIV[ds.OutputName]
+			if !ok {
+				break
+			}
+			return s.handleInput(&iv, result)
+		}
+	}
+
+	return nil, fmt.Errorf("Could not find output with name %s from task %d", ds.OutputName, ds.TaskID)
 }
 
 func (s *Service) handleDynamicInput(i interface{}, desiredType watchful.ParamType) (interface{}, error) {

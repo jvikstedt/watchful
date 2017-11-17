@@ -33,7 +33,7 @@ func main() {
 	execService := exec.New(logger, db)
 	execService.RegisterExecutable(builtin.Equal{})
 	execService.RegisterExecutable(builtin.HTTP{})
-	execService.RegisterExecutable(builtin.JSON{})
+	// execService.RegisterExecutable(builtin.JSON{})
 
 	go execService.Run()
 

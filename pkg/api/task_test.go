@@ -33,13 +33,12 @@ func TestTaskCreate(t *testing.T) {
 	}
 
 	tt := []struct {
-		name                string
-		payload             string
-		expectedStatus      int
-		expectedExecutable  string
-		expectedInputAmount int
+		name               string
+		payload            string
+		expectedStatus     int
+		expectedExecutable string
 	}{
-		{name: "valid", payload: fmt.Sprintf(`{"jobID": %d, "executable": "http"}`, job.ID), expectedStatus: http.StatusCreated, expectedExecutable: "http", expectedInputAmount: 1},
+		{name: "valid", payload: fmt.Sprintf(`{"jobID": %d, "executable": "http"}`, job.ID), expectedStatus: http.StatusCreated, expectedExecutable: "http"},
 		{name: "empty payload", payload: "", expectedStatus: http.StatusUnprocessableEntity},
 		{name: "invalid executable", payload: fmt.Sprintf(`{"jobID": %d, "executable": "invalid"}`, job.ID), expectedStatus: http.StatusNotFound},
 		{name: "invalid jobID", payload: fmt.Sprintf(`{"jobID": %d, "executable": "http"}`, 999), expectedStatus: http.StatusUnprocessableEntity},
@@ -58,10 +57,6 @@ func TestTaskCreate(t *testing.T) {
 
 			if task.Executable != tc.expectedExecutable {
 				t.Fatalf("Expected Executable %s but got %s", tc.expectedExecutable, task.Executable)
-			}
-
-			if len(task.Inputs) != tc.expectedInputAmount {
-				t.Fatalf("Expected task to have amount of inputs: %d but got %d", tc.expectedInputAmount, len(task.Inputs))
 			}
 		})
 	}

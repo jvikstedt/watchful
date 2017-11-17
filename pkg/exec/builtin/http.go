@@ -26,7 +26,7 @@ func (h HTTP) Instruction() watchful.Instruction {
 	}
 }
 
-func (h HTTP) Execute(params map[string]interface{}) (map[string]interface{}, error) {
+func (h HTTP) Execute(params map[string]interface{}) (map[string]watchful.InputValue, error) {
 	url, ok := params["url"].(string)
 	if !ok {
 		return nil, fmt.Errorf("Expected url to be a string but was %T", params["url"])
@@ -43,8 +43,8 @@ func (h HTTP) Execute(params map[string]interface{}) (map[string]interface{}, er
 		return nil, err
 	}
 
-	return map[string]interface{}{
-		"statusCode": response.StatusCode,
-		"body":       string(bodyBytes),
+	return map[string]watchful.InputValue{
+		"statusCode": watchful.InputValue{Type: watchful.ParamInt, Val: response.StatusCode},
+		"body":       watchful.InputValue{Type: watchful.ParamString, Val: string(bodyBytes)},
 	}, nil
 }
