@@ -11,7 +11,7 @@ type Input struct {
 	ID           int                `json:"id"`
 	TaskID       int                `json:"taskID" db:"task_id"`
 	Name         string             `json:"name"`
-	Value        InputValue         `json:"value"`
+	Value        *InputValue        `json:"value"`
 	Dynamic      bool               `json:"dynamic"`
 	SourceTaskID *int               `json:"sourceTaskID" db:"source_task_id"`
 	SourceName   string             `json:"sourceName" db:"source_name"`
@@ -50,6 +50,14 @@ func (i *Input) Update(e sqlx.Ext) error {
 		return err
 	}
 
+	return InputGetOne(e, i.ID, i)
+}
+
+func (i *Input) Delete(e sqlx.Ext) error {
+	_, err := e.Exec(`UPDATE inputs SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?`, i.ID)
+	if err != nil {
+		return err
+	}
 	return InputGetOne(e, i.ID, i)
 }
 

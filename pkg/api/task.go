@@ -31,13 +31,9 @@ func (h handler) taskCreate(w http.ResponseWriter, r *http.Request) (interface{}
 		return EmptyObject, http.StatusUnprocessableEntity, err
 	}
 
-	executable, ok := h.exec.Executables()[task.Executable]
+	_, ok := h.exec.Executables()[task.Executable]
 	if !ok {
 		return EmptyObject, http.StatusNotFound, fmt.Errorf("Could not find executable by identifier: %s", task.Executable)
-	}
-	for _, i := range executable.Instruction().Input {
-		input := model.Input{Name: i.Name, Type: i.Type}
-		task.Inputs = append(task.Inputs, &input)
 	}
 
 	tx, err := h.db.Beginx()

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jvikstedt/watchful"
@@ -123,56 +122,57 @@ func (s *Service) executeJob(result model.Result) {
 }
 
 func (s *Service) handleTask(result model.Result, task *model.Task) (string, error) {
-	executable, ok := s.executables[task.Executable]
-	if !ok {
-		return "", fmt.Errorf("Could not find executable: %s", task.Executable)
-	}
+	return "not implemented", fmt.Errorf("not implemented")
+	// executable, ok := s.executables[task.Executable]
+	// if !ok {
+	// 	return "", fmt.Errorf("Could not find executable: %s", task.Executable)
+	// }
 
-	resultItems, err := model.ResultItemAllByResultID(s.db, result.ID)
-	if err != nil {
-		return "", err
-	}
+	// resultItems, err := model.ResultItemAllByResultID(s.db, result.ID)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	commands := map[string]interface{}{}
-	for _, i := range task.Inputs {
-		if i.Dynamic {
-			for _, r := range resultItems {
-				if r.TaskID == *i.SourceTaskID {
-					output := map[string]interface{}{}
+	// commands := map[string]interface{}{}
+	// for _, i := range task.Inputs {
+	// 	if i.Dynamic {
+	// 		for _, r := range resultItems {
+	// 			if r.TaskID == *i.SourceTaskID {
+	// 				output := map[string]interface{}{}
 
-					d := json.NewDecoder(strings.NewReader(r.Output))
-					d.UseNumber()
-					if err = d.Decode(&output); err != nil {
-						return "", err
-					}
+	// 				d := json.NewDecoder(strings.NewReader(r.Output))
+	// 				d.UseNumber()
+	// 				if err = d.Decode(&output); err != nil {
+	// 					return "", err
+	// 				}
 
-					val, err := s.handleDynamicInput(output[i.SourceName], i.Type)
-					if err != nil {
-						return "", err
-					}
-					commands[i.Name] = val
-				}
-			}
-		} else {
-			val, err := s.handleDynamicInput(i.Value.Val, i.Type)
-			if err != nil {
-				return "", err
-			}
-			commands[i.Name] = val
-		}
-	}
+	// 				val, err := s.handleDynamicInput(output[i.SourceName], i.Type)
+	// 				if err != nil {
+	// 					return "", err
+	// 				}
+	// 				commands[i.Name] = val
+	// 			}
+	// 		}
+	// 	} else {
+	// 		val, err := s.handleDynamicInput(i.Value.Val, i.Type)
+	// 		if err != nil {
+	// 			return "", err
+	// 		}
+	// 		commands[i.Name] = val
+	// 	}
+	// }
 
-	output, err := executable.Execute(commands)
-	if err != nil {
-		return "", err
-	}
+	// output, err := executable.Execute(commands)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	bytes, err := json.Marshal(output)
-	if err != nil {
-		return "", err
-	}
+	// bytes, err := json.Marshal(output)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	return string(bytes), nil
+	// return string(bytes), nil
 }
 
 func (s *Service) handleDynamicInput(i interface{}, desiredType watchful.ParamType) (interface{}, error) {
