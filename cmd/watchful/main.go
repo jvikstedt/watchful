@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"os/user"
+	"path/filepath"
 
 	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/api"
@@ -20,14 +22,19 @@ func main() {
 		port = "8000"
 	}
 
-	extFolder := os.Getenv("EXT_FOLDER_PATH")
-	if extFolder == "" {
-		extFolder = "pkg/exec/example"
+	rootDir, err := getRootDir()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	logger := log.New(os.Stdout, "", log.LstdFlags)
+	f, err := os.OpenFile(filepath.Join(rootDir, "watchful.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	logger := log.New(f, "", log.LstdFlags)
 
-	db, err := model.NewDB("sqlite3", "./dev.db")
+	db, err := model.NewDB("sqlite3", filepath.Join(rootDir, "watchful.db"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,20 +48,19 @@ func main() {
 	execService.RegisterExecutable(builtin.HTTP{})
 	// execService.RegisterExecutable(builtin.JSON{})
 
-	if len(extFolder) > 0 {
-		log.Printf("Loading extension from folder: %s\n", extFolder)
-		err := exec.SearchExtensions(extFolder, func(e watchful.Executable, err error) {
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			log.Printf("Registering extension: %s\n", e.Identifier())
-			execService.RegisterExecutable(e)
-		})
+	extFolder := filepath.Join(rootDir, "ext")
+	log.Printf("Loading extension from folder: %s\n", extFolder)
+	err = exec.SearchExtensions(extFolder, func(e watchful.Executable, err error) {
 		if err != nil {
 			log.Println(err)
+			return
 		}
+
+		log.Printf("Registering extension: %s\n", e.Identifier())
+		execService.RegisterExecutable(e)
+	})
+	if err != nil {
+		log.Println(err)
 	}
 
 	go execService.Run()
@@ -81,4 +87,20 @@ func main() {
 	}
 
 	execService.Shutdown()
+}
+
+func getRootDir() (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	homeDir := usr.HomeDir
+
+	rootDir := filepath.Join(homeDir, ".watchful")
+	extPath := filepath.Join(rootDir, "ext")
+
+	os.MkdirAll(extPath, os.ModePerm)
+
+	return rootDir, nil
 }
