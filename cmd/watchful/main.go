@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/api"
 	"github.com/jvikstedt/watchful/pkg/exec"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
@@ -17,6 +18,11 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8000"
+	}
+
+	extFolder := os.Getenv("EXT_FOLDER_PATH")
+	if extFolder == "" {
+		extFolder = "pkg/exec/example"
 	}
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
@@ -34,6 +40,22 @@ func main() {
 	execService.RegisterExecutable(builtin.Equal{})
 	execService.RegisterExecutable(builtin.HTTP{})
 	// execService.RegisterExecutable(builtin.JSON{})
+
+	if len(extFolder) > 0 {
+		log.Printf("Loading extension from folder: %s\n", extFolder)
+		err := exec.SearchExtensions(extFolder, func(e watchful.Executable, err error) {
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			log.Printf("Registering extension: %s\n", e.Identifier())
+			execService.RegisterExecutable(e)
+		})
+		if err != nil {
+			log.Println(err)
+		}
+	}
 
 	go execService.Run()
 
