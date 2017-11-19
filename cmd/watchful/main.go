@@ -46,6 +46,8 @@ func main() {
 	execService := exec.New(logger, db)
 	execService.RegisterExecutable(builtin.Equal{})
 	execService.RegisterExecutable(builtin.HTTP{})
+	execService.RegisterExecutable(builtin.DiskInfo{})
+	execService.RegisterExecutable(builtin.MoreThan{})
 	// execService.RegisterExecutable(builtin.JSON{})
 
 	extFolder := filepath.Join(rootDir, "ext")
