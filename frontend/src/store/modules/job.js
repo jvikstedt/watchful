@@ -5,6 +5,7 @@ import {
   JOB_FETCH_SUCCESS,
   JOB_FETCH_ALL_SUCCESS,
   JOB_UPDATE_ACTIVE_SUCCESS,
+  JOB_CREATE_SUCCESS,
   TASK_FETCH_BY_JOB_SUCCESS,
   TASK_SWAP_SEQ_SUCCESS,
   TASK_CREATE_SUCCESS,
@@ -43,6 +44,9 @@ const mutations = {
   },
   [JOB_FETCH_ALL_SUCCESS] (state, jobs) {
     state.jobs = _.keyBy(jobs, 'id')
+  },
+  [JOB_CREATE_SUCCESS] (state, job) {
+    state.jobs = { ...state.jobs, [job.id]: { ...job } }
   },
   [TEST_INITIATE_SUCCESS] (state, uuid) {
     state.test = { status: 'waiting', uuid: uuid, startedAt: Date.now(), tries: 0 }
@@ -126,6 +130,14 @@ const actions = {
     try {
       const response = await api.get(`/jobs`)
       commit(JOB_FETCH_ALL_SUCCESS, response)
+    } catch (e) {
+      commit(ERROR_TRIGGERED, e)
+    }
+  },
+  async jobCreate ({ commit, state }, params) {
+    try {
+      const job = await api.post('/jobs', params)
+      commit(JOB_CREATE_SUCCESS, job)
     } catch (e) {
       commit(ERROR_TRIGGERED, e)
     }
