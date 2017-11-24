@@ -22,9 +22,9 @@
 
 <script>
 import { mapActions } from 'vuex'
-import TaskInput from '@/components/TaskInput'
-import TaskOutput from '@/components/TaskOutput'
-import InputCreator from '@/components/InputCreator'
+import TaskInput from '@/components/job/TaskInput'
+import TaskOutput from '@/components/job/TaskOutput'
+import InputCreator from '@/components/job/InputCreator'
 
 import _ from 'lodash'
 

@@ -8,8 +8,8 @@
 
 <script>
 import ResultList from '@/components/ResultList'
-import Control from '@/containers/job/Control'
-import TasksEdit from '@/containers/job/TasksEdit'
+import Control from '@/components/job/Control'
+import TasksEdit from '@/components/job/TasksEdit'
 
 export default {
   created () {

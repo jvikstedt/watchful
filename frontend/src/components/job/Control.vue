@@ -11,7 +11,7 @@
 
 <script>
 import { mapActions } from 'vuex'
-import TaskCreator from '@/components/TaskCreator'
+import TaskCreator from '@/components/job/TaskCreator'
 
 export default {
   props: ['job'],
