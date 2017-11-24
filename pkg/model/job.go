@@ -8,11 +8,14 @@ import (
 )
 
 type Job struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	Active    bool      `json:"active"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at" `
-	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+	ID        int          `json:"id"`
+	Name      string       `json:"name"`
+	Active    bool         `json:"active"`
+	Status    ResultStatus `json:"status" db:"status"`
+	LastRun   time.Time    `json:"lastRun" db:"last_run"`
+	CreatedAt time.Time    `json:"createdAt" db:"created_at" `
+	UpdatedAt time.Time    `json:"updatedAt" db:"updated_at"`
+	DeletedAt *time.Time   `json:"deletedAt" db:"deleted_at"`
 }
 
 func (j *Job) Validate() error {
@@ -58,4 +61,13 @@ func (j *Job) Update(e sqlx.Ext) error {
 
 func JobGetOne(e sqlx.Ext, id int, job *Job) error {
 	return sqlx.Get(e, job, "SELECT jobs.* FROM jobs WHERE id=$1", id)
+}
+
+func JobAll(e sqlx.Ext) ([]*Job, error) {
+	jobs := []*Job{}
+	err := sqlx.Select(e, &jobs, `SELECT jobs.*, results.status, results.created_at AS last_run FROM jobs
+		LEFT JOIN results ON results.id = (
+			SELECT MAX(id) FROM results WHERE job_id = jobs.id
+		) WHERE jobs.deleted_at IS NULL`)
+	return jobs, err
 }

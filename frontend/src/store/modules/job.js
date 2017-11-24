@@ -3,6 +3,7 @@ import _ from 'lodash'
 import {
   ERROR_TRIGGERED,
   JOB_FETCH_SUCCESS,
+  JOB_FETCH_ALL_SUCCESS,
   JOB_UPDATE_ACTIVE_SUCCESS,
   TASK_FETCH_BY_JOB_SUCCESS,
   TASK_SWAP_SEQ_SUCCESS,
@@ -39,6 +40,9 @@ const mutations = {
   },
   [JOB_UPDATE_ACTIVE_SUCCESS] (state, job) {
     state.jobs = { ...state.jobs, [job.id]: { ...state.jobs[job.id], active: job.active } }
+  },
+  [JOB_FETCH_ALL_SUCCESS] (state, jobs) {
+    state.jobs = _.keyBy(jobs, 'id')
   },
   [TEST_INITIATE_SUCCESS] (state, uuid) {
     state.test = { status: 'waiting', uuid: uuid, startedAt: Date.now(), tries: 0 }
@@ -114,6 +118,14 @@ const actions = {
       const job = await api.get(`/jobs/${jobID}`)
 
       commit(JOB_FETCH_SUCCESS, job)
+    } catch (e) {
+      commit(ERROR_TRIGGERED, e)
+    }
+  },
+  async jobFetchAll ({ commit, state }) {
+    try {
+      const response = await api.get(`/jobs`)
+      commit(JOB_FETCH_ALL_SUCCESS, response)
     } catch (e) {
       commit(ERROR_TRIGGERED, e)
     }

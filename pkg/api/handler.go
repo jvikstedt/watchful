@@ -42,6 +42,7 @@ func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
+			r.Get("/", h.jsonResponseHandler(h.jobGetAll))
 			r.Post("/", h.jsonResponseHandler(h.jobCreate))
 			r.Route("/{jobID}", func(r chi.Router) {
 				r.Get("/tasks", h.jsonResponseHandler(h.taskAll))

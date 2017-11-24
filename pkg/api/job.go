@@ -7,6 +7,14 @@ import (
 	"github.com/jvikstedt/watchful/pkg/model"
 )
 
+func (h handler) jobGetAll(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	jobs, err := model.JobAll(h.db)
+	if err != nil {
+		return EmptyObject, http.StatusInternalServerError, err
+	}
+	return jobs, http.StatusOK, nil
+}
+
 func (h handler) jobCreate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	decoder := json.NewDecoder(r.Body)
 	job := &model.Job{}

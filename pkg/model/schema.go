@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS jobs (
 	name text,
 	active integer DEFAULT 0,
 	created_at timestamp,
-	updated_at timestamp DEFAULT current_timestamp
+	updated_at timestamp DEFAULT current_timestamp,
+	deleted_at timestamp
 );
 CREATE TABLE IF NOT EXISTS tasks (
 	id integer PRIMARY KEY,
