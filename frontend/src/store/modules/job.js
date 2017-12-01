@@ -5,6 +5,7 @@ import {
   JOB_FETCH_SUCCESS,
   JOB_FETCH_ALL_SUCCESS,
   JOB_UPDATE_ACTIVE_SUCCESS,
+  JOB_UPDATE_CRON_SUCCESS,
   JOB_CREATE_SUCCESS,
   TASK_FETCH_BY_JOB_SUCCESS,
   TASK_SWAP_SEQ_SUCCESS,
@@ -41,6 +42,9 @@ const mutations = {
   },
   [JOB_UPDATE_ACTIVE_SUCCESS] (state, job) {
     state.jobs = { ...state.jobs, [job.id]: { ...state.jobs[job.id], active: job.active } }
+  },
+  [JOB_UPDATE_CRON_SUCCESS] (state, job) {
+    state.jobs = { ...state.jobs, [job.id]: { ...state.jobs[job.id], cron: job.cron } }
   },
   [JOB_FETCH_ALL_SUCCESS] (state, jobs) {
     state.jobs = _.keyBy(jobs, 'id')
@@ -113,6 +117,14 @@ const actions = {
     try {
       const job = await api.put(`/jobs/${jobID}`, { active })
       commit(JOB_UPDATE_ACTIVE_SUCCESS, job)
+    } catch (e) {
+      commit(ERROR_TRIGGERED, e)
+    }
+  },
+  async updateCron ({ commit, state }, { jobID, cron }) {
+    try {
+      const job = await api.put(`/jobs/${jobID}`, { cron })
+      commit(JOB_UPDATE_CRON_SUCCESS, job)
     } catch (e) {
       commit(ERROR_TRIGGERED, e)
     }

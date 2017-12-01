@@ -17,6 +17,10 @@ export default {
     this.$store.dispatch('jobFetch', this.jobID)
     this.$store.dispatch('taskFetchByJob', this.jobID)
     this.$store.dispatch('resultFetchByJob', this.jobID)
+
+    setInterval(() => {
+      this.$store.dispatch('resultFetchByJob', this.jobID)
+    }, 5000)
   },
   computed: {
     results () {

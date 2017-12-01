@@ -12,6 +12,7 @@ type Job struct {
 	Name      string        `json:"name"`
 	Active    bool          `json:"active"`
 	Status    *ResultStatus `json:"status" db:"status"`
+	Cron      string        `json:"cron" db:"cron"`
 	LastRun   *time.Time    `json:"lastRun" db:"last_run"`
 	CreatedAt time.Time     `json:"createdAt" db:"created_at" `
 	UpdatedAt time.Time     `json:"updatedAt" db:"updated_at"`
@@ -30,8 +31,8 @@ func (j *Job) Create(e sqlx.Ext) error {
 		return err
 	}
 	result, err := e.Exec(`INSERT INTO
-		jobs (name, active, created_at, updated_at)
-		VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, j.Name, j.Active)
+		jobs (name, active, cron, created_at, updated_at)
+		VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, j.Name, j.Active, j.Cron)
 	if err != nil {
 		return err
 	}
@@ -50,8 +51,9 @@ func (j *Job) Update(e sqlx.Ext) error {
 	_, err := e.Exec(`UPDATE jobs SET
 		name = ?,
 		active = ?,
+		cron = ?,
 		updated_at = CURRENT_TIMESTAMP
-		WHERE id = ?`, j.Name, j.Active, j.ID)
+		WHERE id = ?`, j.Name, j.Active, j.Cron, j.ID)
 	if err != nil {
 		return err
 	}

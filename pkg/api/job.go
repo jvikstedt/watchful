@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/jvikstedt/watchful/pkg/model"
+	"github.com/jvikstedt/watchful/pkg/schedule"
 )
 
 func (h handler) jobGetAll(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
@@ -41,6 +42,11 @@ func (h handler) jobGetOne(w http.ResponseWriter, r *http.Request) (interface{},
 		return EmptyObject, http.StatusNotFound, err
 	}
 
+	if job.Active {
+		h.scheduler.AddEntry(schedule.EntryID(job.ID), job.Cron, func(id schedule.EntryID) {
+			h.exec.AddJob(&job, false)
+		})
+	}
 	return job, http.StatusOK, nil
 }
 
@@ -62,6 +68,14 @@ func (h handler) jobUpdate(w http.ResponseWriter, r *http.Request) (interface{},
 
 	if err := job.Update(h.db); err != nil {
 		return EmptyObject, http.StatusUnprocessableEntity, err
+	}
+
+	if job.Active {
+		h.scheduler.AddEntry(schedule.EntryID(job.ID), job.Cron, func(id schedule.EntryID) {
+			h.exec.AddJob(job, false)
+		})
+	} else {
+		h.scheduler.RemoveEntry(schedule.EntryID(job.ID))
 	}
 
 	return job, http.StatusOK, nil

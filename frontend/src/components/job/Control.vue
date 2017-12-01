@@ -6,6 +6,7 @@
       <label>On / Off</label>
     </div>
     <button :class="testBtnClasses" @click="initiateTestRun(job.id)">Test</button>
+    <input v-model="cron" @change="onCronChange" />
   </div>
 </template>
 
@@ -15,17 +16,24 @@ import TaskCreator from '@/components/job/TaskCreator'
 
 export default {
   props: ['job'],
+  data: () => ({
+    cron: ''
+  }),
   methods: {
     ...mapActions([
       'taskCreate',
       'updateActive',
+      'updateCron',
       'initiateTestRun'
     ]),
     onTaskAdd (executable) {
-      this.taskCreate({jobID: this.job.id, executable})
+      this.taskCreate({ jobID: this.job.id, executable })
     },
     onActiveChange (active) {
-      this.updateActive({jobID: this.job.id, active})
+      this.updateActive({ jobID: this.job.id, active })
+    },
+    onCronChange (e) {
+      this.updateCron({ jobID: this.job.id, cron: e.target.value })
     }
   },
   computed: {
@@ -40,6 +48,9 @@ export default {
         { loading: status === 'waiting' }
       ]
     }
+  },
+  created () {
+    this.cron = this.job.cron
   },
   components: {
     TaskCreator

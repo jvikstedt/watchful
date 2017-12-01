@@ -14,6 +14,7 @@ import (
 	"github.com/jvikstedt/watchful/pkg/exec"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/model"
+	"github.com/jvikstedt/watchful/pkg/schedule"
 )
 
 func main() {
@@ -43,6 +44,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	jobs, err := model.JobAll(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	execService := exec.New(logger, db)
 	execService.RegisterExecutable(builtin.Equal{})
 	execService.RegisterExecutable(builtin.HTTP{})
@@ -66,8 +72,22 @@ func main() {
 	}
 
 	go execService.Run()
+	defer execService.Shutdown()
 
-	http.Handle("/", api.New(logger, db, execService))
+	// Scheduler
+	scheduler := schedule.NewCronScheduler(logger)
+	go scheduler.Start()
+	defer scheduler.Stop()
+
+	for _, job := range jobs {
+		if job.Active {
+			scheduler.AddEntry(schedule.EntryID(job.ID), job.Cron, func(id schedule.EntryID) {
+				execService.AddJob(job, false)
+			})
+		}
+	}
+
+	http.Handle("/", api.New(logger, db, execService, scheduler))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {
@@ -87,8 +107,6 @@ func main() {
 	} else {
 		logger.Println("Server closed!")
 	}
-
-	execService.Shutdown()
 }
 
 func getRootDir() (string, error) {

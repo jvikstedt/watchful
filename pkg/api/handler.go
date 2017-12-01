@@ -14,6 +14,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jvikstedt/watchful"
 	"github.com/jvikstedt/watchful/pkg/model"
+	"github.com/jvikstedt/watchful/pkg/schedule"
 )
 
 type executor interface {
@@ -23,7 +24,7 @@ type executor interface {
 
 var EmptyObject = struct{}{}
 
-func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
+func New(logger *log.Logger, db *sqlx.DB, exec executor, scheduler schedule.Scheduler) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -38,7 +39,7 @@ func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
 	})
 	r.Use(cors.Handler)
 
-	h := handler{logger, db, exec}
+	h := handler{logger, db, exec, scheduler}
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
@@ -84,9 +85,10 @@ func New(logger *log.Logger, db *sqlx.DB, exec executor) http.Handler {
 }
 
 type handler struct {
-	log  *log.Logger
-	db   *sqlx.DB
-	exec executor
+	log       *log.Logger
+	db        *sqlx.DB
+	exec      executor
+	scheduler schedule.Scheduler
 }
 
 func (h handler) checkErr(err error, w http.ResponseWriter, statusCode int) bool {
