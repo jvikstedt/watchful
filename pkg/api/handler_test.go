@@ -13,6 +13,7 @@ import (
 	"github.com/jvikstedt/watchful/pkg/api"
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/model"
+	"github.com/jvikstedt/watchful/pkg/schedule"
 )
 
 var testHandler http.Handler
@@ -33,7 +34,8 @@ func TestMain(m *testing.M) {
 	}
 
 	executorMock := &executorMock{}
-	testHandler = api.New(logger, db, executorMock)
+	schedulerMock := &schedule.MockScheduler{}
+	testHandler = api.New(logger, db, executorMock, schedulerMock)
 
 	retCode := m.Run()
 	os.Exit(retCode)
