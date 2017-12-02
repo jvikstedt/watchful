@@ -15,6 +15,8 @@ import (
 	"github.com/jvikstedt/watchful/pkg/exec/builtin"
 	"github.com/jvikstedt/watchful/pkg/model"
 	"github.com/jvikstedt/watchful/pkg/schedule"
+	_ "github.com/jvikstedt/watchful/statik"
+	"github.com/rakyll/statik/fs"
 )
 
 func main() {
@@ -87,7 +89,13 @@ func main() {
 		}
 	}
 
-	http.Handle("/", api.New(logger, db, execService, scheduler))
+	statikFS, err := fs.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Handle("/", http.StripPrefix("/", http.FileServer(statikFS)))
+
+	http.Handle("/api/v1/", http.StripPrefix("/api/v1", api.New(logger, db, execService, scheduler)))
 	server := &http.Server{Addr: ":" + port}
 
 	go func() {

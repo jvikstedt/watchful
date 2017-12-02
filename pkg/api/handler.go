@@ -41,7 +41,7 @@ func New(logger *log.Logger, db *sqlx.DB, exec executor, scheduler schedule.Sche
 
 	h := handler{logger, db, exec, scheduler}
 
-	r.Route("/api/v1", func(r chi.Router) {
+	r.Route("/", func(r chi.Router) {
 		r.Route("/jobs", func(r chi.Router) {
 			r.Get("/", h.jsonResponseHandler(h.jobGetAll))
 			r.Post("/", h.jsonResponseHandler(h.jobCreate))

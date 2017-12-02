@@ -8,6 +8,7 @@ vendor
 gin-bin
 node_modules
 *.db
+statik
 
 # Test binary, build with `go test -c`
 *.test
