@@ -19,7 +19,9 @@ export default {
     this.$store.dispatch('resultFetchByJob', this.jobID)
 
     setInterval(() => {
-      this.$store.dispatch('resultFetchByJob', this.jobID)
+      if (this.job.active) {
+        this.$store.dispatch('resultFetchByJob', this.jobID)
+      }
     }, 5000)
   },
   computed: {
